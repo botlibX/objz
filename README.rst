@@ -1,12 +1,12 @@
-OBJECTS
-=======
+OBJz
+====
 
 
 **NAME**
 
 
 |
-| ``objects`` - a clean namespace
+| ``objz`` - a clean namespace
 |
 
 
@@ -14,7 +14,7 @@ OBJECTS
 
 ::
 
-    >>> from objects import Object, dumps, loads
+    >>> from objz import Object, dumps, loads
     >>> o = Object()
     >>> o.a = "b"
     >>> print(loads(dumps(o)))
@@ -24,7 +24,7 @@ OBJECTS
 **DESCRIPTION**
 
 
-``objects`` contains python3 code to program objects in a functional
+``objz`` contains python3 code to program objz in a functional
 way. it provides an “clean namespace” Object class that only has
 dunder methods, so the namespace is not cluttered with method names.
 
@@ -37,7 +37,7 @@ This makes reading to/from json possible.
 installation is done with pip
 
 |
-| ``$ pip install objects``
+| ``$ pip install objz``
 |
 
 **AUTHOR**
@@ -49,5 +49,5 @@ installation is done with pip
 **COPYRIGHT**
 
 |
-| ``objects`` is Public Domain.
+| ``objz`` is Public Domain.
 |

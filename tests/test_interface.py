@@ -11,15 +11,12 @@ import sys
 import unittest
 
 
-sys.path.insert(0, os.getcwd())
+import objz
+import objz.methods
+import objz.serials
 
 
-import objects
-import objects.methods
-import objects.serials
-
-
-from objects import *
+from objz import *
 
 
 PACKAGE = [
@@ -64,14 +61,14 @@ class TestInterface(unittest.TestCase):
     def test_package(self):
         okd = True
         for mod in PACKAGE:
-            mod1 = getattr(objects, mod, None)
+            mod1 = getattr(objz, mod, None)
             if not mod1:
                 okd = False
                 print(mod)
                 break
         self.assertTrue(okd)
 
-    def test_objects(self):
+    def test_objz(self):
         okd = True
         obj = Object()
         dirr = dir(obj)

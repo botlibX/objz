@@ -1,20 +1,20 @@
 # This file is placed in the Public Domain.
 
 
-"objects"
+"objz"
 
 
 import unittest
 
 
-from objects import Object, dumps, items, keys, loads, update, values
+from objz import Object, dumps, items, keys, loads, update, values
 
 
-import objects
+import objz
 
 
 OBJECT = Object()
-PACKAGE = objects
+PACKAGE = objz
 VALIDJSON = "{'test': 'bla'}"
 VALIDPYTHON = '{"test": "bla"}'
 
@@ -163,7 +163,7 @@ class TestObject(unittest.TestCase):
         self.assertTrue(okd)
 
     def test_module(self):
-        self.assertEqual(Object().__module__, "objects")
+        self.assertEqual(Object().__module__, "objz")
 
     def test_register(self):
         obj = Object()

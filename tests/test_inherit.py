@@ -4,7 +4,7 @@
 import unittest
 
 
-from objects import Object
+from objz import Object
 
 
 class A(Object):

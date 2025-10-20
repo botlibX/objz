@@ -4,7 +4,7 @@
 import unittest
 
 
-from objects import Object, dumps, loads, update
+from objz import Object, dumps, loads, update
 
 
 class TestComposite(unittest.TestCase):

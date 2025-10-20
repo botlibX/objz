@@ -4,7 +4,7 @@
 import unittest
 
 
-from objects import Object, dumps
+from objz import Object, dumps
 
 
 VALIDJSON = '{"test": "bla"}'

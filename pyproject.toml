@@ -7,12 +7,12 @@ build-backend = "setuptools.build_meta"
 
 
 [project]
-name = "tob"
-version = "132"
+name = "objz"
+version = "100"
 authors = [
     {name = "Bart Thate", email = "bthate@dds.nl" },
 ]
-description = "bot in reverse !"
+description = "objects"
 readme = "README.rst"
 license = "Unlicense"
 classifiers=[
@@ -24,15 +24,12 @@ classifiers=[
 
 
 [project.urls]
-"home" = "https://pypi.org/project/tob"
-"bugs" = "https://github.com/botlibX/tob/issues"
-"source" = "https://github.com/botlibX/tob"
+"home" = "https://pypi.org/project/objz"
+"bugs" = "https://github.com/botlibX/objz/issues"
+"source" = "https://github.com/botlibX/objz"
 
 
 [tool.setuptools]
-include-package-data = true
 packages=[
-    'tob',
-    'tob.modules',
-    'tob.network'
+    'objz',
 ]
