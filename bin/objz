@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+# This file is placed in the Public Domain.
+
+
+"objects"
+
+
+import os
+import sys
+import time
+
+
+sys.path.insert(0, os.getcwd())
+
+
+from objz import Object, elapsed, fmt, fns, fntime, ident, read, write
+
+
+class Commands:
+
+    cmds = {}
+
+    @staticmethod
+    def add(func) -> None:
+        name = func.__name__
+        Commands.cmds[name] = func
+
+    @staticmethod
+    def get(cmd):
+        return Commands.cmds.get(cmd, None)
+
+
+class Event:
+
+    def __init__(self):
+        self.orig = ""
+        self.result = {}
+        self.txt = ""
+        self.type = "event"
+
+    def display(self):
+        for tme in sorted(self.result):
+            print(self.result[tme])
+
+    def reply(self, txt):
+        self.result[time.time()] = txt
+
+
+class Log:
+
+    def __init__(self):
+        self.txt = ""
+
+
+def command(evt):
+    func = Commands.get(evt.cmd)
+    if func:
+        func(evt)
+        evt.display()
+
+
+def cmd(event):
+    event.reply(",".join(Commands.cmds))
+
+
+def fnd(event):
+    nmr = 0
+    for fnm in fns("store"):
+        nmr += 1
+        obj = Object()
+        read(obj, fnm) 
+        event.reply(f"{nmr} {fmt(obj)} {elapsed(time.time()-fntime(fnm))}")
+
+
+def log(event):
+    o = Log()
+    o.txt = event.txt
+    write(o, os.path.join("store", ident(o)))
+    event.reply("ok")
+
+
+Commands.add(cmd)
+Commands.add(fnd)
+Commands.add(log)
+
+
+def main():
+    evt = Event()
+    evt.args = sys.argv[1:]
+    evt.cmd = evt.args[0]
+    evt.rest =  " ".join(evt.args[1:])
+    evt.txt  = " ".join(evt.args)
+    command(evt)
+
+
+if __name__ == "__main__":
+    main()
+    
