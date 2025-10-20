@@ -57,18 +57,23 @@ def values(obj):
     return obj.__dict__.values()
 
 
-from .serials import *
+from .serials import dump, dumps, load, loads
+from .storage import read, write
 
 
 def __dir__():
     return (
         'Object',
         'construct',
+        'dump',
         'dumps',
         'items',
         'keys',
+        'load',
         'loads',
+        'read',
         'values',
+        'write',
         'update'
     )
 
