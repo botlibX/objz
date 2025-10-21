@@ -9,8 +9,8 @@ import pathlib
 import time
 
 
+from .objects import Object, update
 from .serials import dump, load
-from .        import Object, update
 
 
 def cdir(path):

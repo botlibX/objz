@@ -7,14 +7,15 @@
 import unittest
 
 
-from objz import Object, dumps, items, keys, loads, update, values
+from objz.objects import Object, items, keys, update, values
+from objz.serials import dumps, loads
 
 
-import objz
+import objz.objects
 
 
 OBJECT = Object()
-PACKAGE = objz
+PACKAGE = objz.objects
 VALIDJSON = "{'test': 'bla'}"
 VALIDPYTHON = '{"test": "bla"}'
 
@@ -163,7 +164,7 @@ class TestObject(unittest.TestCase):
         self.assertTrue(okd)
 
     def test_module(self):
-        self.assertEqual(Object().__module__, "objz")
+        self.assertEqual(Object().__module__, "objz.objects")
 
     def test_register(self):
         obj = Object()

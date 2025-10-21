@@ -4,7 +4,8 @@
 import unittest
 
 
-from objz import Object, dumps, loads
+from objz.objects import Object
+from objz.serials import dumps, loads
 
 
 class TestDecoder(unittest.TestCase):

@@ -11,17 +11,28 @@ import sys
 import unittest
 
 
-import objz
+import objz.caching
 import objz.methods
+import objz.objects
 import objz.serials
+import objz.workdir
 
 
-from objz import *
+from objz.objects import *
+
+
+import objz
+
+
+TODO = objz
 
 
 PACKAGE = [
+    'caching',
     'methods',
-    'serials'
+    'objects',
+    'serials',
+    'workdir'
 ]
 
 
@@ -58,10 +69,11 @@ METHODS = [
 
 
 class TestInterface(unittest.TestCase):
+
     def test_package(self):
         okd = True
         for mod in PACKAGE:
-            mod1 = getattr(objz, mod, None)
+            mod1 = getattr(TODO, mod, None)
             if not mod1:
                 okd = False
                 print(mod)

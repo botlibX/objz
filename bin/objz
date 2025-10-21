@@ -13,7 +13,13 @@ import time
 sys.path.insert(0, os.getcwd())
 
 
-from objz import Object, elapsed, fmt, fns, fntime, ident, read, write
+from objz.methods import fmt
+from objz.objects import Object
+from objz.caching import find, fns, fntime, long, read, write
+from objz.workdir import getpath, ident, setwd, skel, store, types
+
+
+"classes"
 
 
 class Commands:
@@ -40,8 +46,12 @@ class Commands:
 class Event:
 
     def __init__(self):
+        self.args = []
+        self.gets = {}
         self.orig = ""
+        self.rest = ""
         self.result = {}
+        self.sets = {}
         self.txt = ""
         self.type = "event"
 
@@ -53,24 +63,84 @@ class Event:
         self.result[time.time()] = txt
 
 
+
+class Log:
+ 
+    pass
+
+
+"utilities"
+
+
+def elapsed(seconds, short=True):
+    txt = ""
+    nsec = float(seconds)
+    if nsec < 1:
+        return f"{nsec:.2f}s"
+    yea     = 365 * 24 * 60 * 60
+    week    = 7 * 24 * 60 * 60
+    nday    = 24 * 60 * 60
+    hour    = 60 * 60
+    minute  = 60
+    yeas    = int(nsec / yea)
+    nsec   -= yeas * yea
+    weeks   = int(nsec / week)
+    nsec   -= weeks * week
+    nrdays  = int(nsec / nday)
+    nsec   -= nrdays * nday
+    hours   = int(nsec / hour)
+    nsec   -= hours * hour
+    minutes = int(nsec / minute)
+    nsec   -= int(minute * minutes)
+    sec     = int(nsec)
+    if yeas:
+        txt += f"{yeas}y"
+    if weeks:
+        nrdays += weeks * 7
+    if nrdays:
+        txt += f"{nrdays}d"
+    if short and txt:
+        return txt.strip()
+    if hours:
+        txt += f"{hours}h"
+    if minutes:
+        txt += f"{minutes}m"
+    if sec:
+        txt += f"{sec}s"
+    txt = txt.strip()
+    return txt
+
+
+"commands"
+
+
 def cmd(event):
     event.reply(",".join(Commands.cmds))
 
 
 def fnd(event):
+    skel()
+    if not event.rest:
+        res = sorted([x.split('.')[-1].lower() for x in types()])
+        if res:
+            event.reply(",".join(res))
+        else:
+            event.reply("no data yet.")
+        return
+    otype = event.args[0]
+    clz = long(otype)
     nmr = 0
-    for fnm in fns("store"):
-        nmr += 1
-        obj = Object()
-        read(obj, fnm) 
+    for fnm, obj in list(find(clz, event.gets)):
         event.reply(f"{nmr} {fmt(obj)} {elapsed(time.time()-fntime(fnm))}")
+        nmr += 1
+    if not nmr:
+        event.reply("no result")
 
 
 def log(event):
-    class Log: pass
     o = Log()
     o.txt = event.txt
-    write(o, os.path.join("store", ident(o)))
+    write(o, getpath(o))
     event.reply("ok")
 
 
@@ -79,13 +149,25 @@ Commands.add(fnd)
 Commands.add(log)
 
 
-if __name__ == "__main__":
-    if len(sys.argv) <= 1:
+"main"
+
+
+def main():
+    l = len(sys.argv)
+    if l <= 1:
         os._exit(0)
+    setwd("objz")
     evt = Event()
-    evt.args = sys.argv[1:]
-    evt.cmd = evt.args[0]
-    evt.rest =  " ".join(evt.args[1:])
-    evt.txt  = " ".join(evt.args)
+    if l >= 2:
+        evt.cmd = sys.argv[1]
+    if l > 2:
+        evt.args = sys.argv[2:]
+    if evt.args:
+        evt.rest =  " ".join(evt.args)
+        evt.txt  = " ".join(evt.args)
     Commands.command(evt)
+
+
+if __name__ == "__main__":
+    main()
     

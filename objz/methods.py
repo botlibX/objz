@@ -4,7 +4,11 @@
 "object as the first argument"
 
 
-from . import items, keys
+from .objects import items, keys
+
+
+def deleted(obj):
+    return "__deleted__" in dir(obj) and obj.__deleted__
 
 
 def edit(obj, setter, skip=True):
@@ -90,6 +94,7 @@ def search(obj, selector, matching=False):
 
 def __dir__():
     return (
+        'deleted',
         'edit',
         'fmt',
         'name',
