@@ -63,6 +63,3 @@ def __dir__():
         'dumps',
         'loads'
     )
-
-
-__all__ = __dir__()

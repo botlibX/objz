@@ -11,9 +11,6 @@ import os
 from .objects import items, keys
 
 
-j = os.path.join
-
-
 def deleted(obj):
     return "__deleted__" in dir(obj) and obj.__deleted__
 
@@ -77,7 +74,7 @@ def getpath(obj):
 
 
 def ident(obj):
-    return j(fqn(obj), *str(datetime.datetime.now()).split())
+    return os.path.join(fqn(obj), *str(datetime.datetime.now()).split())
 
 
 def name(obj, short=False):
@@ -122,6 +119,3 @@ def __dir__():
         'name',
         'search'
     )
-
-
-__all__ = __dir__()

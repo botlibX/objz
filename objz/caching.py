@@ -6,17 +6,14 @@
 
 import json.decoder
 import os
-import pathlib
 import threading
-import time
 
 
-from .methods import deleted, getpath, ident, search
+from .methods import deleted
 from .objects import Object, update
 from .serials import dump, load
 
 
-j    = os.path.join
 lock = threading.RLock()
 
 
@@ -40,14 +37,6 @@ class Cache:
             Cache.add(path, obj)
 
 
-"utilities"
-
-
-def cdir(path):
-    pth = pathlib.Path(path)
-    pth.parent.mkdir(parents=True, exist_ok=True)
-
-
 def find(path, selector=None, removed=False, matching=False):
     if selector is None:
         selector = {}
@@ -69,61 +58,9 @@ def fns(path):
         for dname in dirs:
             if dname.count("-") != 2:
                 continue
-            ddd = j(rootdir, dname)
+            ddd = os.path.join(rootdir, dname)
             for fll in os.listdir(ddd):
-                yield j(ddd, fll)
-
-
-def fntime(daystr):
-    datestr = " ".join(daystr.split(os.sep)[-2:])
-    datestr = datestr.replace("_", " ")
-    if "." in datestr:
-        datestr, rest = datestr.rsplit(".", 1)
-    else:
-        rest = ""
-    timed = time.mktime(time.strptime(datestr, "%Y-%m-%d %H:%M:%S"))
-    if rest:
-        timed += float("." + rest)
-    return float(timed)
-
-
-def last(path, selector=None):
-    if selector is None:
-        selector = {}
-    result = sorted(
-                    find(path, selector),
-                    key=lambda x: fntime(x[0])
-                   )
-    res = ""
-    if result:
-        inp = result[-1]
-        update(obj, inp[-1])
-        res = inp[0]
-    return res
-
-
-def long(path, name):
-    split = name.split(".")[-1].lower()
-    res = name
-    for names in types(path):
-        if split == names.split(".")[-1].lower():
-            res = names
-            break
-    return res
-
-
-def skel(path):
-    pth = pathlib.Path(path)
-    pth.mkdir(parents=True, exist_ok=True)
-    return str(pth)
-
-
-def types(path):
-    skel(path)
-    return os.listdir(path)
-
-
-"methods"
+                yield os.path.join(ddd, fll)
 
 
 def read(obj, path):
@@ -149,8 +86,6 @@ def write(obj, path):
 def __dir__():
     return (
         'Cache',
-        'find',
-        'last',
         'read',
         'write'
     )

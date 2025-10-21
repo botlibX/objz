@@ -4,13 +4,6 @@
 "a clean namespace"
 
 
-import datetime
-import os
-
-
-j = os.path.join
-
-
 class Object:
 
     def __contains__(self, key):
@@ -37,17 +30,6 @@ def construct(obj, *args, **kwargs):
             update(obj, vars(val))
     if kwargs:
         update(obj, kwargs)
-
-
-def fqn(obj):
-    kin = str(type(obj)).split()[-1][1:-2]
-    if kin == "type":
-        kin = f"{obj.__module__}.{obj.__name__}"
-    return kin
-
-
-def ident(obj):
-    return j(fqn(obj), *str(datetime.datetime.now()).split())
 
 
 def items(obj):
@@ -81,9 +63,6 @@ def __dir__():
         'construct',
         'items',
         'keys',
-        'values',
-        'update'
+        'update',
+        'values'
     )
-
-
-__all__ = __dir__()

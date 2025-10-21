@@ -13,9 +13,10 @@ import time
 sys.path.insert(0, os.getcwd())
 
 
+from objz.caching import find, read, write
 from objz.methods import fmt, getpath, ident
 from objz.objects import Object
-from objz.caching import find, fns, fntime, long, read, skel, types, write
+from objz.workdir import fntime, long, skel, types
 
 
 "classes"
