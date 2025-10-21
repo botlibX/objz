@@ -19,6 +19,7 @@ from objz.objects import Object
 
 
 PATH = os.path.expanduser("~/.objz")
+PATH = ".test"
 
 
 "classes"
