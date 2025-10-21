@@ -85,6 +85,8 @@ Commands.add(log)
 
 
 def main():
+    if len(sys.argv) <= 1:
+        return
     evt = Event()
     evt.args = sys.argv[1:]
     evt.cmd = evt.args[0]

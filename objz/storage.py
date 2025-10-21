@@ -60,6 +60,8 @@ def elapsed(seconds, short=True):
 def fns(path):
     for rootdir, dirs, _files in os.walk(path, topdown=False):
         for dname in dirs:
+            if dname.count("-") != 2:
+                continue
             ddd = os.path.join(rootdir, dname)
             for fll in os.listdir(ddd):
                 yield os.path.join(ddd, fll)
