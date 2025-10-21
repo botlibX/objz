@@ -11,10 +11,9 @@ import threading
 import time
 
 
-from .methods import deleted, search
+from .methods import deleted, getpath, ident, search
 from .objects import Object, update
 from .serials import dump, load
-from .workdir import getpath, ident, long, store
 
 
 j    = os.path.join
@@ -41,16 +40,18 @@ class Cache:
             Cache.add(path, obj)
 
 
+"utilities"
+
+
 def cdir(path):
     pth = pathlib.Path(path)
     pth.parent.mkdir(parents=True, exist_ok=True)
 
 
-def find(clz, selector=None, removed=False, matching=False):
-    clz = long(clz)
+def find(path, selector=None, removed=False, matching=False):
     if selector is None:
         selector = {}
-    for pth in fns(clz):
+    for pth in fns(path):
         obj = Cache.get(pth)
         if not obj:
             obj = Object()
@@ -63,10 +64,11 @@ def find(clz, selector=None, removed=False, matching=False):
         yield pth, obj
 
 
-def fns(clz):
-    pth = store(clz)
-    for rootdir, dirs, _files in os.walk(pth, topdown=False):
+def fns(path):
+    for rootdir, dirs, _files in os.walk(path, topdown=False):
         for dname in dirs:
+            if dname.count("-") != 2:
+                continue
             ddd = j(rootdir, dname)
             for fll in os.listdir(ddd):
                 yield j(ddd, fll)
@@ -85,11 +87,11 @@ def fntime(daystr):
     return float(timed)
 
 
-def last(obj, selector=None):
+def last(path, selector=None):
     if selector is None:
         selector = {}
     result = sorted(
-                    find(fqn(obj), selector),
+                    find(path, selector),
                     key=lambda x: fntime(x[0])
                    )
     res = ""
@@ -98,6 +100,30 @@ def last(obj, selector=None):
         update(obj, inp[-1])
         res = inp[0]
     return res
+
+
+def long(path, name):
+    split = name.split(".")[-1].lower()
+    res = name
+    for names in types(path):
+        if split == names.split(".")[-1].lower():
+            res = names
+            break
+    return res
+
+
+def skel(path):
+    pth = pathlib.Path(path)
+    pth.mkdir(parents=True, exist_ok=True)
+    return str(pth)
+
+
+def types(path):
+    skel(path)
+    return os.listdir(path)
+
+
+"methods"
 
 
 def read(obj, path):
@@ -110,10 +136,9 @@ def read(obj, path):
                 raise ex
 
 
-def write(obj, path=None):
+
+def write(obj, path):
     with lock:
-        if path is None:
-            path = getpath(obj)
         cdir(path)
         with open(path, "w", encoding="utf-8") as fpt:
             dump(obj, fpt, indent=4)

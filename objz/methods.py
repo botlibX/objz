@@ -4,7 +4,14 @@
 "object as the first argument"
 
 
+import datetime
+import os
+
+
 from .objects import items, keys
+
+
+j = os.path.join
 
 
 def deleted(obj):
@@ -56,6 +63,21 @@ def fmt(obj, args=[], skip=[], plain=False, empty=False):
         else:
             txt += f"{key}={name(value, True)} "
     return txt.strip()
+
+
+def fqn(obj):
+    kin = str(type(obj)).split()[-1][1:-2]
+    if kin == "type":
+        kin = f"{obj.__module__}.{obj.__name__}"
+    return kin
+
+
+def getpath(obj):
+    return ident(obj)
+
+
+def ident(obj):
+    return j(fqn(obj), *str(datetime.datetime.now()).split())
 
 
 def name(obj, short=False):

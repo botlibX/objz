@@ -13,13 +13,15 @@ import time
 sys.path.insert(0, os.getcwd())
 
 
-from objz.methods import fmt
+from objz.methods import fmt, getpath, ident
 from objz.objects import Object
-from objz.caching import find, fns, fntime, long, read, write
-from objz.workdir import getpath, ident, setwd, skel, store, types
+from objz.caching import find, fns, fntime, long, read, skel, types, write
 
 
 "classes"
+
+
+PATH = os.path.expanduser("~/.objz")
 
 
 class Commands:
@@ -119,18 +121,18 @@ def cmd(event):
 
 
 def fnd(event):
-    skel()
+    skel(PATH)
     if not event.rest:
-        res = sorted([x.split('.')[-1].lower() for x in types()])
+        res = sorted([x.split('.')[-1].lower() for x in types(PATH)])
         if res:
             event.reply(",".join(res))
         else:
             event.reply("no data yet.")
         return
     otype = event.args[0]
-    clz = long(otype)
+    clz = long(PATH, otype)
     nmr = 0
-    for fnm, obj in list(find(clz, event.gets)):
+    for fnm, obj in list(find(PATH, event.gets)):
         event.reply(f"{nmr} {fmt(obj)} {elapsed(time.time()-fntime(fnm))}")
         nmr += 1
     if not nmr:
@@ -140,7 +142,7 @@ def fnd(event):
 def log(event):
     o = Log()
     o.txt = event.txt
-    write(o, getpath(o))
+    write(o, os.path.join(PATH, getpath(o)))
     event.reply("ok")
 
 
@@ -156,7 +158,6 @@ def main():
     l = len(sys.argv)
     if l <= 1:
         os._exit(0)
-    setwd("objz")
     evt = Event()
     if l >= 2:
         evt.cmd = sys.argv[1]
