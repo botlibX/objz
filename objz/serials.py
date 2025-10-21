@@ -17,6 +17,9 @@ from json import loads as jloads
 lock = threading.RLock()
 
 
+"classes"
+
+
 class Encoder(JSONEncoder):
 
     def default(self, o):
@@ -32,6 +35,8 @@ class Encoder(JSONEncoder):
             except TypeError:
                 return repr(o)
 
+
+"utilities"
 
 
 def dump(obj, *args, **kw):
@@ -56,6 +61,9 @@ def load(*args, **kw):
 def loads(*args, **kw):
     ""
     return jloads(*args, **kw)
+
+
+"interface"
 
 
 def __dir__():

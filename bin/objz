@@ -18,10 +18,10 @@ from objz.methods import fmt, getpath, ident
 from objz.objects import Object
 
 
-"classes"
-
-
 PATH = os.path.expanduser("~/.objz")
+
+
+"classes"
 
 
 class Commands:

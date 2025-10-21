@@ -19,6 +19,9 @@ from .serials import dump, load
 lock = threading.RLock()
 
 
+"classes"
+
+
 class Cache:
 
     objs = {}

@@ -19,6 +19,9 @@ class Object:
         return str(self.__dict__)
 
 
+"methods"
+
+
 def construct(obj, *args, **kwargs):
     if args:
         val = args[0]
@@ -55,6 +58,9 @@ def values(obj):
     if isinstance(obj, dict):
         return obj.values()
     return obj.__dict__.values()
+
+
+"interface"
 
 
 def __dir__():

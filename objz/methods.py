@@ -11,6 +11,9 @@ import os
 from .objects import items, keys
 
 
+"methods"
+
+
 def deleted(obj):
     return "__deleted__" in dir(obj) and obj.__deleted__
 
@@ -109,6 +112,9 @@ def search(obj, selector, matching=False):
             res = False
             break
     return res
+
+
+"interface"
 
 
 def __dir__():
