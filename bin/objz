@@ -26,6 +26,13 @@ class Commands:
         Commands.cmds[name] = func
 
     @staticmethod
+    def command(evt):
+        func = Commands.get(evt.cmd)
+        if func:
+            func(evt)
+            evt.display()
+
+    @staticmethod
     def get(cmd):
         return Commands.cmds.get(cmd, None)
 
@@ -46,19 +53,6 @@ class Event:
         self.result[time.time()] = txt
 
 
-class Log:
-
-    def __init__(self):
-        self.txt = ""
-
-
-def command(evt):
-    func = Commands.get(evt.cmd)
-    if func:
-        func(evt)
-        evt.display()
-
-
 def cmd(event):
     event.reply(",".join(Commands.cmds))
 
@@ -73,6 +67,7 @@ def fnd(event):
 
 
 def log(event):
+    class Log: pass
     o = Log()
     o.txt = event.txt
     write(o, os.path.join("store", ident(o)))
@@ -84,17 +79,13 @@ Commands.add(fnd)
 Commands.add(log)
 
 
-def main():
+if __name__ == "__main__":
     if len(sys.argv) <= 1:
-        return
+        os._exit(0)
     evt = Event()
     evt.args = sys.argv[1:]
     evt.cmd = evt.args[0]
     evt.rest =  " ".join(evt.args[1:])
     evt.txt  = " ".join(evt.args)
-    command(evt)
-
-
-if __name__ == "__main__":
-    main()
+    Commands.command(evt)
     
