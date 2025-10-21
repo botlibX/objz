@@ -13,10 +13,9 @@ import time
 sys.path.insert(0, os.getcwd())
 
 
-from objz.caching import find, read, write
+from objz.caching import find, fntime, long, read, skel, types, write
 from objz.methods import fmt, getpath, ident
 from objz.objects import Object
-from objz.workdir import fntime, long, skel, types
 
 
 "classes"
@@ -141,6 +140,9 @@ def fnd(event):
 
 
 def log(event):
+    if not event.txt:
+        event.reply("log <txt>")
+        return
     o = Log()
     o.txt = event.txt
     write(o, os.path.join(PATH, getpath(o)))

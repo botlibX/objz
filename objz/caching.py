@@ -6,7 +6,9 @@
 
 import json.decoder
 import os
+import pathlib
 import threading
+import time
 
 
 from .methods import deleted
@@ -37,6 +39,14 @@ class Cache:
             Cache.add(path, obj)
 
 
+"utilities"
+
+
+def cdir(path):
+    pth = pathlib.Path(path)
+    pth.parent.mkdir(parents=True, exist_ok=True)
+
+
 def find(path, selector=None, removed=False, matching=False):
     if selector is None:
         selector = {}
@@ -63,6 +73,43 @@ def fns(path):
                 yield os.path.join(ddd, fll)
 
 
+def fntime(daystr):
+    datestr = " ".join(daystr.split(os.sep)[-2:])
+    datestr = datestr.replace("_", " ")
+    if "." in datestr:
+        datestr, rest = datestr.rsplit(".", 1)
+    else:
+        rest = ""
+    timed = time.mktime(time.strptime(datestr, "%Y-%m-%d %H:%M:%S"))
+    if rest:
+        timed += float("." + rest)
+    return float(timed)
+
+
+def long(path, name):
+    split = name.split(".")[-1].lower()
+    res = name
+    for names in types(path):
+        if split == names.split(".")[-1].lower():
+            res = names
+            break
+    return res
+
+
+def skel(path):
+    pth = pathlib.Path(path)
+    pth.mkdir(parents=True, exist_ok=True)
+    return str(pth)
+
+
+def types(path):
+    skel(path)
+    return os.listdir(path)
+
+
+"methods"
+
+
 def read(obj, path):
     with lock:
         with open(path, "r", encoding="utf-8") as fpt:
@@ -81,6 +128,9 @@ def write(obj, path):
             dump(obj, fpt, indent=4)
         Cache.update(path, obj)
         return path
+
+
+"interface"
 
 
 def __dir__():
