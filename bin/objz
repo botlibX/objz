@@ -22,7 +22,7 @@ sys.path.insert(0, os.getcwd())
 
 from objz.methods import fmt
 from objz.objects import Object
-from objz.workdir import Workdir
+from objz.persist import Workdir
 
 
 from mods import Config, Mods # noqa: E402

@@ -21,9 +21,9 @@ import _thread
 sys.path.insert(0, os.getcwd())
 
 
-from objz.caching import Cache, read, write
 from objz.methods import deleted, name, search
 from objz.objects import Object, update
+from objz.persist import Cache, read, write
 from objz.serials import dump, load
 
 
