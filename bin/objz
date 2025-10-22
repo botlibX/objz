@@ -40,22 +40,11 @@ class Console:
     def loop(self):
         while True:
             try:
-                event = self.poll()
-                if event is None:
-                    break
-                event.orig = repr(self)
+                event = Event()
+                evt.txt = input("> ")
                 command(event)
             except (KeyboardInterrupt, EOFError):
                 _thread.interrupt_main()
-
-    def poll(self):
-        evt = Event()
-        evt.txt = input("> ")
-        return evt
-
-    def raw(self, txt):
-        print(txt.encode('utf-8', 'replace').decode("utf-8"))
-
 
     def start(self):
         launch(self.loop)
@@ -88,24 +77,18 @@ def wrap(func):
 
 
 def main():
-    l = len(sys.argv)
-    if l <= 1:
+    txt = " ".join(sys.argv[1:])
+    if not txt:
         os._exit(0)
     scanner()
-    evt = Event()
-    if l >= 2:
-        evt.cmd = sys.argv[1]
-    if l > 2:
-        evt.args = sys.argv[2:]
-    if evt.args:
-        evt.rest =  " ".join(evt.args)
-        evt.txt  = " ".join(evt.args)
     if "-c" in sys.argv:
         banner()
         level(Config.level)
         csl = Console()
         csl.start()
     else:
+        evt = Event()
+        evt.txt = txt
         command(evt)
 
 

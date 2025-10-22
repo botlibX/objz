@@ -11,10 +11,11 @@ import unittest
 
 
 import objz.caching
+import objz.command
 import objz.methods
 import objz.objects
+import objz.package
 import objz.serials
-import objz.workdir
 
 
 from objz.objects import *
@@ -28,10 +29,11 @@ TODO = objz
 
 PACKAGE = [
     'caching',
+    'command',
     'methods',
     'objects',
-    'serials',
-    'workdir'
+    'package',
+    'serials'
 ]
 
 
