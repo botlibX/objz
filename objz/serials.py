@@ -17,9 +17,6 @@ from json import loads as jloads
 lock = threading.RLock()
 
 
-"classes"
-
-
 class Encoder(JSONEncoder):
 
     def default(self, o):
@@ -36,7 +33,9 @@ class Encoder(JSONEncoder):
                 return repr(o)
 
 
-"utilities"
+def cdir(path):
+    pth = pathlib.Path(path)
+    pth.parent.mkdir(parents=True, exist_ok=True)
 
 
 def dump(obj, *args, **kw):
@@ -63,11 +62,28 @@ def loads(*args, **kw):
     return jloads(*args, **kw)
 
 
-"interface"
+def read(obj, path):
+    with lock:
+        with open(path, "r", encoding="utf-8") as fpt:
+            try:
+                update(obj, load(fpt))
+            except json.decoder.JSONDecodeError as ex:
+                ex.add_note(path)
+                raise ex
+
+
+def write(obj, path):
+    with lock:
+        cdir(path)
+        with open(path, "w", encoding="utf-8") as fpt:
+            dump(obj, fpt, indent=4)
+        return path
 
 
 def __dir__():
     return (
         'dumps',
-        'loads'
+        'loads',
+        'read',
+        'write'
     )
