@@ -72,8 +72,8 @@ def fqn(obj):
     return kin
 
 
-def getpath(obj):
-    return ident(obj)
+def getpath(path, obj):
+    return os.path.join(path, ident(obj))
 
 
 def ident(obj):

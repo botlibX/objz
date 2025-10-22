@@ -11,7 +11,7 @@ import threading
 import time
 
 
-from .methods import deleted
+from .methods import deleted, search
 from .objects import Object, update
 from .serials import dump, load
 
@@ -50,10 +50,10 @@ def cdir(path):
     pth.parent.mkdir(parents=True, exist_ok=True)
 
 
-def find(path, selector=None, removed=False, matching=False):
+def find(path, type=None, selector=None, removed=False, matching=False):
     if selector is None:
         selector = {}
-    for pth in fns(path):
+    for pth in fns(path, type):
         obj = Cache.get(pth)
         if not obj:
             obj = Object()
@@ -66,12 +66,16 @@ def find(path, selector=None, removed=False, matching=False):
         yield pth, obj
 
 
-def fns(path):
-    for rootdir, dirs, _files in os.walk(path, topdown=False):
+def fns(path, type=None):
+    if type is not None:
+        type = type.lower()
+    for rootdir, dirs, _files in os.walk(path, topdown=True):
         for dname in dirs:
             if dname.count("-") != 2:
                 continue
             ddd = os.path.join(rootdir, dname)
+            if type and type not in ddd.lower():
+                continue
             for fll in os.listdir(ddd):
                 yield os.path.join(ddd, fll)
 

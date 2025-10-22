@@ -72,6 +72,11 @@ class Log:
     pass
 
 
+class Todo:
+
+    pass
+
+ 
 "utilities"
 
 
@@ -121,6 +126,22 @@ def cmd(event):
     event.reply(",".join(Commands.cmds))
 
 
+def dne(event):
+    if not event.args:
+        event.reply("dne <txt>")
+        return
+    selector = {'txt': event.args[0]}
+    nmr = 0
+    for fnm, obj in find(PATH, "todo", selector):
+        nmr += 1
+        obj.__deleted__ = True
+        write(obj, fnm)
+        event.reply("ok")
+        break
+    if not nmr:
+        event.reply("nothing todo")
+
+
 def fnd(event):
     skel(PATH)
     if not event.rest:
@@ -131,9 +152,8 @@ def fnd(event):
             event.reply("no data yet.")
         return
     otype = event.args[0]
-    clz = long(PATH, otype)
     nmr = 0
-    for fnm, obj in list(find(PATH, event.gets)):
+    for fnm, obj in list(find(PATH, otype, event.gets)):
         event.reply(f"{nmr} {fmt(obj)} {elapsed(time.time()-fntime(fnm))}")
         nmr += 1
     if not nmr:
@@ -146,13 +166,26 @@ def log(event):
         return
     o = Log()
     o.txt = event.txt
-    write(o, os.path.join(PATH, getpath(o)))
+    write(o, getpath(PATH, o))
     event.reply("ok")
 
 
+def tdo(event):
+    if not event.rest:
+        event.reply("tdo <txt>")
+        return
+    obj = Todo()
+    obj.txt = event.rest
+    write(obj, getpath(PATH, obj))
+    event.reply("ok")
+
+
+
 Commands.add(cmd)
+Commands.add(dne)
 Commands.add(fnd)
 Commands.add(log)
+Commands.add(tdo)
 
 
 "main"

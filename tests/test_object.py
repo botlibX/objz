@@ -8,7 +8,6 @@ import unittest
 
 
 from objz.objects import Object, items, keys, update, values
-from objz.serials import dumps, loads
 
 
 import objz.objects
