@@ -20,8 +20,11 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 sys.path.insert(0, os.getcwd())
 
 
+from objz.methods import fmt
+
+
 from mods import Config, Mods, Workdir #noqa: E402
-from mods import command, launch, level, scanner # noqa: E402
+from mods import command, forever, launch, level, scanner # noqa: E402
 
 
 Mods.dir("mods", "mods")
@@ -33,14 +36,20 @@ class Console:
     def loop(self):
         while True:
             try:
-                event = Event()
-                event.txt = input("> ")
-                command(event)
+                event = self.poll()
+                if event.txt:
+                    command(event)
             except (KeyboardInterrupt, EOFError):
                 _thread.interrupt_main()
 
+    def poll(self):
+        event = Event()
+        event.txt = input("> ")
+        return event
+
     def start(self):
         launch(self.loop)
+        forever()
 
 
 class Event:

@@ -11,6 +11,7 @@ import json.decoder
 import logging
 import os
 import pathlib
+import queue
 import sys
 import threading
 import time
@@ -259,10 +260,6 @@ def inits(names):
     return modz
 
 
-def launch(func, *args, **kwargs):
-    thread = threading.Thread(None, func, name(func), *args, **kwargs)
-    thread.start()
-    return thread
 
 
 def modules():
@@ -275,6 +272,23 @@ def modules():
             if x.endswith(".py") and not x.startswith("__")
            ])
     return sorted(mods)
+
+
+"thread"
+
+
+def forever():
+    while True:
+        try:
+            time.sleep(0.1)
+        except (KeyboardInterrupt, EOFError):
+            break
+
+
+def launch(func, *args, **kwargs):
+    thread = threading.Thread(None, func, name(func), tuple(args), dict(kwargs), daemon=True)
+    thread.start()
+    return thread
 
 
 "logging"
