@@ -7,9 +7,13 @@
 import time
 
 
-from objz.caching import find, fntime, skel, types
 from objz.methods import fmt
-from .            import Workdir, elapsed
+
+
+from . import Workdir, find, fntime, skel, types
+
+
+from .utl import elapsed
 
 
 def fnd(event):

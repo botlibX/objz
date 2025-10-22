@@ -4,20 +4,10 @@
 "json serializer"
 
 
-import threading
+import json
 
 
-from json import JSONEncoder
-from json import dump  as jdump
-from json import dumps as jdumps
-from json import load  as jload
-from json import loads as jloads
-
-
-lock = threading.RLock()
-
-
-class Encoder(JSONEncoder):
+class Encoder(json.JSONEncoder):
 
     def default(self, o):
         if isinstance(o, dict):
@@ -25,7 +15,7 @@ class Encoder(JSONEncoder):
         if isinstance(o, list):
             return iter(o)
         try:
-            return JSONEncoder.default(self, o)
+            return json.JSONEncoder.default(self, o)
         except TypeError:
             try:
                 return vars(o)
@@ -33,57 +23,32 @@ class Encoder(JSONEncoder):
                 return repr(o)
 
 
-def cdir(path):
-    pth = pathlib.Path(path)
-    pth.parent.mkdir(parents=True, exist_ok=True)
-
-
-def dump(obj, *args, **kw):
-    ""
-    with lock:
-        kw["cls"] = Encoder
-        return jdump(obj, *args, **kw)
-
-
-def dumps(obj, *args, **kw):
+def dump(*args, **kw):
     ""
     kw["cls"] = Encoder
-    return jdumps(obj, *args, **kw)
+    return json.dump(*args, **kw)
 
 
-def load(*args, **kw):
+def dumps(*args, **kw):
     ""
-    with lock:
-        return jload(*args, **kw)
+    kw["cls"] = Encoder
+    return json.dumps(*args, **kw)
 
 
-def loads(*args, **kw):
+def load(s, *args, **kw):
     ""
-    return jloads(*args, **kw)
+    return json.load(s, *args, **kw)
 
 
-def read(obj, path):
-    with lock:
-        with open(path, "r", encoding="utf-8") as fpt:
-            try:
-                update(obj, load(fpt))
-            except json.decoder.JSONDecodeError as ex:
-                ex.add_note(path)
-                raise ex
-
-
-def write(obj, path):
-    with lock:
-        cdir(path)
-        with open(path, "w", encoding="utf-8") as fpt:
-            dump(obj, fpt, indent=4)
-        return path
+def loads(s, *args, **kw):
+    ""
+    return json.loads(s, *args, **kw)
 
 
 def __dir__():
     return (
+        'dump',
         'dumps',
-        'loads',
-        'read',
-        'write'
+        'load',
+        'loads'
     )

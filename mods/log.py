@@ -4,9 +4,9 @@
 "log text"
 
 
-from objz.caching import write
 from objz.methods import getpath
-from .            import Workdir
+
+from . import Workdir, write
 
 
 class Log:

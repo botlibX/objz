@@ -4,7 +4,7 @@
 "list of commands"
 
 
-from objz.command import Commands
+from . import Commands
 
 
 def cmd(event):
