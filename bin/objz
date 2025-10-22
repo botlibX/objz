@@ -6,17 +6,64 @@
 
 
 import os
+import signal
 import sys
+import termios
+import time
 
 
 sys.path.insert(0, os.getcwd())
 
 
 from objz.command import Commands, Event, command, scanner
-from objz.package import Mods
+from objz.package import Mods, launch, level
+
+
+signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
 Mods.dir("mods", "mods")
+
+
+class Config:
+
+    debug = False
+    init  = ""
+    level = "warn"
+    name = "objz"
+    verbose = False
+    version = 102
+
+
+class Console:
+
+    def loop(self):
+        while True:
+            try:
+                event = self.poll()
+                if event is None:
+                    break
+                event.orig = repr(self)
+                command(event)
+            except (KeyboardInterrupt, EOFError):
+                _thread.interrupt_main()
+
+    def poll(self):
+        evt = Event()
+        evt.txt = input("> ")
+        return evt
+
+    def raw(self, txt):
+        print(txt.encode('utf-8', 'replace').decode("utf-8"))
+
+
+    def start(self):
+        launch(self.loop)
+
+
+def banner():
+    tme = time.ctime(time.time()).replace("  ", " ")
+    print("%s %s since %s (%s)" % (Config.name.upper(), Config.version, tme, Config.level.upper()))
 
 
 def wrapped(func):
@@ -24,6 +71,20 @@ def wrapped(func):
         func()
     except (KeyboardInterrupt, EOFError):
         print("")
+
+
+def wrap(func):
+    import termios
+    old = None
+    try:
+        old = termios.tcgetattr(sys.stdin.fileno())
+    except termios.error:
+        pass
+    try:
+        wrapped(func)
+    finally:
+        if old:
+            termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, old)
 
 
 def main():
@@ -39,9 +100,15 @@ def main():
     if evt.args:
         evt.rest =  " ".join(evt.args)
         evt.txt  = " ".join(evt.args)
-    command(evt)
+    if "-c" in sys.argv:
+        banner()
+        level(Config.level)
+        csl = Console()
+        csl.start()
+    else:
+        command(evt)
 
 
 if __name__ == "__main__":
-    wrapped(main)
+    wrap(main)
     

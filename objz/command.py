@@ -53,6 +53,7 @@ class Event:
 
 
 def command(evt):
+    evt.parse(evt.txt)
     func = Commands.get(evt.cmd)
     if func:
         func(evt)

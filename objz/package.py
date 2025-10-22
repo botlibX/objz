@@ -13,7 +13,24 @@ import threading
 import _thread
 
 
-lock = threading.RLock()
+from .methods import name
+
+
+LEVELS = {
+    'debug': logging.DEBUG,
+    'info': logging.INFO,
+    'warning': logging.WARNING,
+    'warn': logging.WARNING,
+    'error': logging.ERROR,
+    'critical': logging.CRITICAL,
+}
+
+
+class Formatter(logging.Formatter):
+
+    def format(self, record):
+        record.module = record.module.upper()
+        return logging.Formatter.format(self, record)
 
 
 class Mods:
@@ -57,6 +74,40 @@ def importer(name, pth):
         _thread.interrupt_main()
 
 
+def inits(names):
+    modz = []
+    for name in modules():
+        if name not in names:
+            continue
+        try:
+            module = getmod(name)
+            if module and "init" in dir(module):
+                thr = launch(module.init)
+                modz.append((module, thr))
+        except Exception as ex:
+            logging.exception(ex)
+            _thread.interrupt_main()
+    return modz
+
+
+def level(loglevel="debug"):
+    if loglevel != "none":
+        datefmt = "%H:%M:%S"
+        format_short = "%(module).3s %(message)-76s"
+        ch = logging.StreamHandler()
+        ch.setLevel(LEVELS.get(loglevel))
+        formatter = Formatter(fmt=format_short, datefmt=datefmt)
+        ch.setFormatter(formatter)
+        logger = logging.getLogger()
+        logger.addHandler(ch)
+
+
+def launch(func, *args, **kwargs):
+    thread = threading.Thread(None, func, name(func), *args, **kwargs)
+    thread.start()
+    return thread
+
+
 def modules():
     mods = []
     for name, path in Mods.dirs.items():
@@ -74,5 +125,7 @@ def __dir__():
         'Mods',
         'getmod',
         'importer',
+        'launch',
+        'level',
         'modules'
     )
