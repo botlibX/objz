@@ -21,9 +21,11 @@ sys.path.insert(0, os.getcwd())
 
 
 from objz.methods import fmt
+from objz.objects import Object
+from objz.workdir import Workdir
 
 
-from mods import Config, Mods, Workdir #noqa: E402
+from mods import Config, Mods # noqa: E402
 from mods import command, forever, launch, level, scanner # noqa: E402
 
 
@@ -52,11 +54,17 @@ class Console:
         forever()
 
 
-class Event:
+class Event(Object):
 
     def __init__(self):
+        Object.__init__(self)
         self.result = {}
         self.txt = ""
+
+    def __getattr__(self, key):
+        if key not in self:
+            setattr(self, key, "")
+        return 
 
     def display(self):
         for tme in sorted(self.result):

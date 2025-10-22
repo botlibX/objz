@@ -21,6 +21,7 @@ import _thread
 sys.path.insert(0, os.getcwd())
 
 
+from objz.caching import Cache, read, write
 from objz.methods import deleted, name, search
 from objz.objects import Object, update
 from objz.serials import dump, load
@@ -63,7 +64,7 @@ class Commands:
 
 
 def command(evt):
-    evt.parse(evt.txt)
+    parse(evt, evt.txt)
     func = Commands.get(evt.cmd)
     if func:
         func(evt)
@@ -89,115 +90,6 @@ def scanner(names=[]):
         scan(module)
         res.append(module)
     return res
-
-
-"workdir"
-
-
-class Workdir:
-
-    wdr = ""
-
-
-def cdir(path):
-    pth = pathlib.Path(path)
-    pth.parent.mkdir(parents=True, exist_ok=True)
-
-
-def find(path, type=None, selector=None, removed=False, matching=False):
-    if selector is None:
-        selector = {}
-    for pth in fns(path, type):
-        obj = Cache.get(pth)
-        if not obj:
-            obj = Object()
-            read(obj, pth)
-            Cache.add(pth, obj)
-        if not removed and deleted(obj):
-            continue
-        if selector and not search(obj, selector, matching):
-            continue
-        yield pth, obj
-
-
-def fns(path, type=None):
-    if type is not None:
-        type = type.lower()
-    for rootdir, dirs, _files in os.walk(path, topdown=True):
-        for dname in dirs:
-            if dname.count("-") != 2:
-                continue
-            ddd = os.path.join(rootdir, dname)
-            if type and type not in ddd.lower():
-                continue
-            for fll in os.listdir(ddd):
-                yield os.path.join(ddd, fll)
-
-
-def fntime(daystr):
-    datestr = " ".join(daystr.split(os.sep)[-2:])
-    datestr = datestr.replace("_", " ")
-    if "." in datestr:
-        datestr, rest = datestr.rsplit(".", 1)
-    else:
-        rest = ""
-    timed = time.mktime(time.strptime(datestr, "%Y-%m-%d %H:%M:%S"))
-    if rest:
-        timed += float("." + rest)
-    return float(timed)
-
-
-def skel(path):
-    pth = pathlib.Path(path)
-    pth.mkdir(parents=True, exist_ok=True)
-    return str(pth)
-
-
-def types(path):
-    skel(path)
-    return os.listdir(path)
-
-
-"caching"
-
-
-class Cache:
-
-    objs = {}
-
-    @staticmethod
-    def add(path, obj):
-        Cache.objs[path] = obj
-
-    @staticmethod
-    def get(path):
-        return Cache.objs.get(path, None)
-
-    @staticmethod
-    def update(path, obj):
-        if path in Cache.objs:
-            update(Cache.objs[path], obj)
-        else:
-            Cache.add(path, obj)
-
-
-def read(obj, path):
-    with lock:
-        with open(path, "r", encoding="utf-8") as fpt:
-            try:
-                update(obj, load(fpt))
-            except json.decoder.JSONDecodeError as ex:
-                ex.add_note(path)
-                raise ex
-
-
-def write(obj, path):
-    with lock:
-        cdir(path)
-        with open(path, "w", encoding="utf-8") as fpt:
-            dump(obj, fpt, indent=4)
-        Cache.update(path, obj)
-        return path
 
 
 "modules"
@@ -321,3 +213,97 @@ def level(loglevel="debug"):
         ch.setFormatter(formatter)
         logger = logging.getLogger()
         logger.addHandler(ch)
+
+
+"utilities"
+
+
+def elapsed(seconds, short=True):
+    txt = ""
+    nsec = float(seconds)
+    if nsec < 1:
+        return f"{nsec:.2f}s"
+    yea     = 365 * 24 * 60 * 60
+    week    = 7 * 24 * 60 * 60
+    nday    = 24 * 60 * 60
+    hour    = 60 * 60
+    minute  = 60
+    yeas    = int(nsec / yea)
+    nsec   -= yeas * yea
+    weeks   = int(nsec / week)
+    nsec   -= weeks * week
+    nrdays  = int(nsec / nday)
+    nsec   -= nrdays * nday
+    hours   = int(nsec / hour)
+    nsec   -= hours * hour
+    minutes = int(nsec / minute)
+    nsec   -= int(minute * minutes)
+    sec     = int(nsec)
+    if yeas:
+        txt += f"{yeas}y"
+    if weeks:
+        nrdays += weeks * 7
+    if nrdays:
+        txt += f"{nrdays}d"
+    if short and txt:
+        return txt.strip()
+    if hours:
+        txt += f"{hours}h"
+    if minutes:
+        txt += f"{minutes}m"
+    if sec:
+        txt += f"{sec}s"
+    txt = txt.strip()
+    return txt
+
+
+def parse(obj, txt=""):
+    if not txt:
+        if "txt" in dir(obj):
+            txt = obj.txt
+    args = []
+    obj.args   = getattr(obj, "args", [])
+    obj.cmd    = getattr(obj, "cmd", "")
+    obj.gets   = getattr(obj, "gets", {})
+    obj.index  = getattr(obj, "index", None)
+    obj.inits  = getattr(obj, "inits", "")
+    obj.mod    = getattr(obj, "mod", "")
+    obj.opts   = getattr(obj, "opts", "")
+    obj.result = getattr(obj, "result", "")
+    obj.sets   = getattr(obj, "sets", {})
+    obj.silent = getattr(obj, "silent", {})
+    obj.txt    = txt or getattr(obj, "txt", "")
+    obj.otxt   = obj.txt or getattr(obj, "otxt", "")
+    _nr = -1
+    for spli in obj.otxt.split():
+        if spli.startswith("-"):
+            try:
+                obj.index = int(spli[1:])
+            except ValueError:
+                obj.opts += spli[1:]
+            continue
+        if "-=" in spli:
+            key, value = spli.split("-=", maxsplit=1)
+            obj.silent[key] = value
+            obj.gets[key] = value
+            continue
+        if "==" in spli:
+            key, value = spli.split("==", maxsplit=1)
+            obj.gets[key] = value
+            continue
+        if "=" in spli:
+            key, value = spli.split("=", maxsplit=1)
+            obj.sets[key] = value
+            continue
+        _nr += 1
+        if _nr == 0:
+            obj.cmd = spli
+            continue
+        args.append(spli)
+    if args:
+        obj.args = args
+        obj.txt  = obj.cmd or ""
+        obj.rest = " ".join(obj.args)
+        obj.txt  = obj.cmd + " " + obj.rest
+    else:
+        obj.txt = obj.cmd or ""
