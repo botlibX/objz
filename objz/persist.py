@@ -1,16 +1,17 @@
 # This file is placed in the Public Domain.
 
 
-"caching"
+"persistence"
 
 
+import json
 import os
 import pathlib
 import threading
 import time
 
 
-from .methods import deleted
+from .methods import deleted, search
 from .objects import Object, update
 from .serials import dump, load
 

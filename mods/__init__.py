@@ -6,12 +6,8 @@
 
 import importlib.util
 import inspect
-import json
-import json.decoder
 import logging
 import os
-import pathlib
-import queue
 import sys
 import threading
 import time
@@ -21,10 +17,7 @@ import _thread
 sys.path.insert(0, os.getcwd())
 
 
-from objz.methods import deleted, name, search
-from objz.objects import Object, update
-from objz.persist import Cache, read, write
-from objz.serials import dump, load
+from objz.methods import name
 
 
 NAME = "objz"

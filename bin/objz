@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # This file is placed in the Public Domain.
+# ruff: noqa: E402
 
 
 "main"
 
 
 import os
-import readline
 import signal
 import sys
 import termios
@@ -20,13 +20,12 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 sys.path.insert(0, os.getcwd())
 
 
-from objz.methods import fmt
 from objz.objects import Object
 from objz.persist import Workdir
 
 
-from mods import Config, Mods # noqa: E402
-from mods import command, forever, launch, level, scanner # noqa: E402
+from mods import Config, Mods
+from mods import command, forever, launch, level, scanner
 
 
 Mods.dir("mods", "mods")
