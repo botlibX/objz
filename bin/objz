@@ -7,194 +7,30 @@
 
 import os
 import sys
-import time
 
 
 sys.path.insert(0, os.getcwd())
 
 
-from objz.caching import find, fntime, long, read, skel, types, write
-from objz.methods import fmt, getpath, ident
-from objz.objects import Object
+from objz.command import Commands, Event, command, scanner
+from objz.package import Mods
 
 
-PATH = os.path.expanduser("~/.objz")
-PATH = ".test"
+Mods.dir("mods", "mods")
 
 
-"classes"
-
-
-class Commands:
-
-    cmds = {}
-
-    @staticmethod
-    def add(func) -> None:
-        name = func.__name__
-        Commands.cmds[name] = func
-
-    @staticmethod
-    def command(evt):
-        func = Commands.get(evt.cmd)
-        if func:
-            func(evt)
-            evt.display()
-
-    @staticmethod
-    def get(cmd):
-        return Commands.cmds.get(cmd, None)
-
-
-class Event:
-
-    def __init__(self):
-        self.args = []
-        self.gets = {}
-        self.orig = ""
-        self.rest = ""
-        self.result = {}
-        self.sets = {}
-        self.txt = ""
-        self.type = "event"
-
-    def display(self):
-        for tme in sorted(self.result):
-            print(self.result[tme])
-
-    def reply(self, txt):
-        self.result[time.time()] = txt
-
-
-
-class Log:
- 
-    pass
-
-
-class Todo:
-
-    pass
-
- 
-"utilities"
-
-
-def elapsed(seconds, short=True):
-    txt = ""
-    nsec = float(seconds)
-    if nsec < 1:
-        return f"{nsec:.2f}s"
-    yea     = 365 * 24 * 60 * 60
-    week    = 7 * 24 * 60 * 60
-    nday    = 24 * 60 * 60
-    hour    = 60 * 60
-    minute  = 60
-    yeas    = int(nsec / yea)
-    nsec   -= yeas * yea
-    weeks   = int(nsec / week)
-    nsec   -= weeks * week
-    nrdays  = int(nsec / nday)
-    nsec   -= nrdays * nday
-    hours   = int(nsec / hour)
-    nsec   -= hours * hour
-    minutes = int(nsec / minute)
-    nsec   -= int(minute * minutes)
-    sec     = int(nsec)
-    if yeas:
-        txt += f"{yeas}y"
-    if weeks:
-        nrdays += weeks * 7
-    if nrdays:
-        txt += f"{nrdays}d"
-    if short and txt:
-        return txt.strip()
-    if hours:
-        txt += f"{hours}h"
-    if minutes:
-        txt += f"{minutes}m"
-    if sec:
-        txt += f"{sec}s"
-    txt = txt.strip()
-    return txt
-
-
-"commands"
-
-
-def cmd(event):
-    event.reply(",".join(Commands.cmds))
-
-
-def dne(event):
-    if not event.args:
-        event.reply("dne <txt>")
-        return
-    selector = {'txt': event.args[0]}
-    nmr = 0
-    for fnm, obj in find(PATH, "todo", selector):
-        nmr += 1
-        obj.__deleted__ = True
-        write(obj, fnm)
-        event.reply("ok")
-        break
-    if not nmr:
-        event.reply("nothing todo")
-
-
-def fnd(event):
-    skel(PATH)
-    if not event.rest:
-        res = sorted([x.split('.')[-1].lower() for x in types(PATH)])
-        if res:
-            event.reply(",".join(res))
-        else:
-            event.reply("no data yet.")
-        return
-    otype = event.args[0]
-    nmr = 0
-    for fnm, obj in list(find(PATH, otype, event.gets)):
-        event.reply(f"{nmr} {fmt(obj)} {elapsed(time.time()-fntime(fnm))}")
-        nmr += 1
-    if not nmr:
-        event.reply("no result")
-
-
-def log(event):
-    if not event.txt:
-        event.reply("log <txt>")
-        return
-    o = Log()
-    o.txt = event.txt
-    write(o, getpath(PATH, o))
-    event.reply("ok")
-
-
-def tdo(event):
-    if not event.rest:
-        event.reply("tdo <txt>")
-        return
-    obj = Todo()
-    obj.txt = event.rest
-    write(obj, getpath(PATH, obj))
-    event.reply("ok")
-
-
-
-Commands.add(cmd)
-Commands.add(dne)
-Commands.add(fnd)
-Commands.add(log)
-Commands.add(tdo)
-
-
-"main"
+def wrapped(func):
+    try:
+        func()
+    except (KeyboardInterrupt, EOFError):
+        print("")
 
 
 def main():
     l = len(sys.argv)
     if l <= 1:
         os._exit(0)
+    scanner()
     evt = Event()
     if l >= 2:
         evt.cmd = sys.argv[1]
@@ -203,9 +39,9 @@ def main():
     if evt.args:
         evt.rest =  " ".join(evt.args)
         evt.txt  = " ".join(evt.args)
-    Commands.command(evt)
+    command(evt)
 
 
 if __name__ == "__main__":
-    main()
+    wrapped(main)
     
