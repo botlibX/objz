@@ -12,6 +12,7 @@ import unittest
 
 import objz.methods
 import objz.objects
+import objz.persist
 import objz.serials
 
 
@@ -27,6 +28,7 @@ TODO = objz
 PACKAGE = [
     'methods',
     'objects',
+    'persist',
     'serials'
 ]
 
