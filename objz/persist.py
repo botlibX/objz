@@ -11,9 +11,9 @@ import threading
 import time
 
 
+from .marshal import dump, load
 from .methods import deleted, search
 from .objects import Object, update
-from .serials import dump, load
 
 
 lock = threading.RLock()

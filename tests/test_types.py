@@ -4,8 +4,8 @@
 import unittest
 
 
+from objz.marshal import dumps, loads
 from objz.objects import Object, update
-from objz.serials import dumps, loads
 
 
 class TestTypes(unittest.TestCase):

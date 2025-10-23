@@ -4,8 +4,8 @@
 import unittest
 
 
+from objz.marshal import dumps
 from objz.objects import Object
-from objz.serials import dumps
 
 
 VALIDJSON = '{"test": "bla"}'

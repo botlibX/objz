@@ -4,7 +4,7 @@
 "show modules"
 
 
-from . import modules
+from objz.runtime import modules
 
 
 def mod(event):
