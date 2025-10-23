@@ -8,8 +8,10 @@ import time
 
 
 from objz.methods import fmt
-from objz.modules import elapsed
 from objz.persist import Workdir, find, fntime, skel, types
+
+
+from . import elapsed
 
 
 def fnd(event):
