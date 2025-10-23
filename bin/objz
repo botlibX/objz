@@ -27,7 +27,6 @@ from mods import command, forever, launch, parse, scanner
 
 
 Mods.dir("mods", "mods")
-Mods.dir("modules", os.path.join(os.path.dirname(__file__), "modules"))
 Workdir.wdr = os.path.expanduser(f"~/.{Config.name}")
 
 
