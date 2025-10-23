@@ -32,4 +32,5 @@ classifiers=[
 [tool.setuptools]
 packages=[
     'objz',
+    'objz.modules'
 ]

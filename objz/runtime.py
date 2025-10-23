@@ -86,6 +86,7 @@ class Console:
 class Event:
 
     def __init__(self):
+        self._olock = threading.RLock()
         self._ready = threading.Event()
         self._thr = None
         self.args = []
@@ -96,6 +97,11 @@ class Event:
         self.result = {}
         self.txt = ""
         self.type = "event"
+
+    def display(self):
+        with self._olock:
+            for tme in sorted(self.result):
+                print(self.result[tme])
 
     def ready(self):
         self._ready.set()
