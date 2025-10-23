@@ -4,8 +4,7 @@
 "todo items"
 
 
-from objz.persist import Workdir, find, write
-from objz.methods import getpath
+from objz.persist import Workdir, find, getpath, write
 
 
 class Todo:

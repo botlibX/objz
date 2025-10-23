@@ -69,10 +69,6 @@ def fqn(obj):
     return kin
 
 
-def getpath(path, obj):
-    return os.path.join(path, ident(obj))
-
-
 def ident(obj):
     return os.path.join(fqn(obj), *str(datetime.datetime.now()).split())
 
@@ -109,3 +105,15 @@ def search(obj, selector, matching=False):
             res = False
             break
     return res
+
+
+def __dir__():
+    return (
+        'deleted',
+        'edit',
+        'fmt',
+        'fqn',
+        'ident',
+        'name',
+        'search'
+    )

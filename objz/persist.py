@@ -12,7 +12,7 @@ import time
 
 
 from .marshal import dump, load
-from .methods import deleted, search
+from .methods import deleted, ident, search
 from .objects import Object, update
 
 
@@ -92,6 +92,10 @@ def fntime(daystr):
     return float(timed)
 
 
+def getpath(path, obj):
+    return os.path.join(path, ident(obj))
+
+
 def skel(path):
     pth = pathlib.Path(path)
     pth.mkdir(parents=True, exist_ok=True)
@@ -125,9 +129,12 @@ def write(obj, path):
 def __dir__():
     return (
         'Cache',
+        'Workdir',
         'cdir',
         'find',
         'fntime',
         'read',
+        'skel',
+        'types',
         'write'
     )

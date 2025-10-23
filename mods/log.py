@@ -4,8 +4,7 @@
 "log text"
 
 
-from objz.methods import getpath
-from objz.persist import Workdir, write
+from objz.persist import Workdir, getpath, write
 
 
 class Log:
