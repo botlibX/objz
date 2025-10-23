@@ -19,7 +19,6 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
 from objz.command import Config, Mods, command, forever, launch, parse, scanner
-from objz.objects import Object, update
 from objz.persist import Workdir
 
 
@@ -159,7 +158,7 @@ def main():
         level(Config.level)
         csl = Console()
         csl.start()
-        ewruen
+        return
     evt = Event()
     evt.txt = txt
     command(evt)
