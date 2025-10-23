@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "objz"
-version = "101"
+version = "102"
 authors = [
     {name = "Bart Thate", email = "bthate@dds.nl" },
 ]
@@ -21,6 +21,10 @@ classifiers=[
     'Programming Language :: Python :: 3',
     'Topic :: Utilities'
 ]
+
+
+[project.scripts]
+"objz" = "objz.runtime:main"
 
 
 [project.urls]

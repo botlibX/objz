@@ -4,7 +4,7 @@
 "show modules"
 
 
-from objz.command import modules
+from objz.modules import modules
 
 
 def mod(event):

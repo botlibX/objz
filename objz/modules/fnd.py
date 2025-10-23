@@ -7,8 +7,8 @@
 import time
 
 
-from objz.command import elapsed
 from objz.methods import fmt
+from objz.modules import elapsed
 from objz.persist import Workdir, find, fntime, skel, types
 
 

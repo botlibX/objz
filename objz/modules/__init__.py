@@ -14,9 +14,10 @@ import time
 import _thread
 
 
-from .methods import name
+from objz.methods import name
 
 
+d = os.path.dirname
 lock = threading.RLock()
 
 
@@ -28,7 +29,7 @@ class Config:
     debug = False
     init  = ""
     level = "warn"
-    name = os.path.dirname(__file__).split(os.sep)[-1]
+    name = d(d(__file__)).split(os.sep)[-1]
     verbose = False
     version = 102
 
@@ -228,7 +229,7 @@ def parse(obj, txt=""):
     setattr(obj, "result", getattr(obj, "result", ""))
     setattr(obj, "sets", getattr(obj, "sets", {}))
     setattr(obj, "silent", getattr(obj, "silent", {}))
-    setattr(obj, "txt", getattr(obj, "txt", ""))
+    setattr(obj, "txt", txt or getattr(obj, "txt", ""))
     setattr(obj, "otxt", obj.txt or getattr(obj, "otxt", ""))
     _nr = -1
     for spli in obj.otxt.split():
@@ -267,6 +268,7 @@ def parse(obj, txt=""):
 
 def __dir__():
     return (
+        'Commands',
         'Mods',
         'command',
         'elapsed',

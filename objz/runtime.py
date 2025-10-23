@@ -7,7 +7,7 @@
 
 import logging
 import os
-import signal
+import readline
 import sys
 import termios
 import threading
@@ -15,10 +15,8 @@ import time
 import _thread
 
 
-signal.signal(signal.SIGINT, signal.SIG_DFL)
-
-
-from objz.command import Config, Mods, command, forever, launch, parse, scanner
+from objz.engines import forever, launch
+from objz.modules import Config, Mods, command, parse, scanner
 from objz.persist import Workdir
 
 
@@ -80,7 +78,6 @@ class Console:
 
     def start(self):
         launch(self.loop)
-        forever()
 
 
 class Event:
@@ -123,13 +120,43 @@ def banner():
     print("%s %s since %s (%s)" % (Config.name.upper(), Config.version, tme, Config.level.upper()))
 
 
+def check(txt):
+    args = sys.argv[1:]
+    for arg in args:
+        if not arg.startswith("-"):
+            continue
+        for char in txt:
+            if char in arg:
+                return True
+    return False
+
+
+"scripts"
+
+
+def console():
+    txt = " ".join(sys.argv[1:])
+    parse(Config, txt)
+    level(Config.level)
+    if "v" in Config.opts:
+        banner()
+    scanner()
+    csl = Console()
+    csl.start()
+    forever()
+
+
+def control():
+    txt = " ".join(sys.argv[1:])
+    parse(Config, txt)
+    scanner()
+    evt = Event()
+    evt.txt = txt
+    command(evt)
+
+
 "runtime"
 
-
-def boot(doparse=True):
-    if doparse:
-        parse(Config, " ".join(sys.argv[1:]))
-    level(Config.level)
 
 
 def wrapped(func):
@@ -153,22 +180,11 @@ def wrap(func):
 
 
 def main():
-    txt = " ".join(sys.argv[1:])
-    if not txt:
-        os._exit(0)
-    parse(Config, txt)
-    if "v" in Config.opts:
-        banner()
-    scanner()
-    if "-c" in sys.argv:
-        level(Config.level)
-        csl = Console()
-        csl.start()
-        return
-    evt = Event()
-    evt.txt = txt
-    command(evt)
+    if check("c"):
+        wrap(console)
+    else:
+        wrapped(control)
 
 
 if __name__ == "__main__":
-    wrap(main)
+    main()
