@@ -14,16 +14,47 @@ import time
 sys.path.insert(0, os.getcwd())
 
 
-from objz.command import Commands, Config, Event, Mods, command, parse, scanner
+from objz.command import Commands, Config, Mods, command, parse, scanner
 from objz.methods import fmt, ident
 from objz.objects import Object
 from objz.persist import Workdir, find, fntime, getpath, read, skel, types, write
 
 
+examples = {
+    "cmd": [""],
+    "dne": ["", "test2"],
+    "log": ["", "test"],
+    "fnd": ["", "log"],
+    "tdo": ["", "test2"]
+}
+
+
 Mods.dir("mods", "mods")
 Workdir.wdr = ".test"
 
+
 PATH = ".test"
+
+
+class Event:
+
+    def __init__(self):
+        self.ctime = time.time()
+        self.result = {}
+        self.type = "event"
+
+    def display(self):
+        for tme in sorted(self.result):
+            self.dosay(
+                       self.result[tme]
+                      )
+
+    def dosay(self, txt):
+        print(txt)
+
+    def reply(self, txt):
+        self.result[time.time()] = txt
+
 
 
 class Log:
@@ -36,17 +67,11 @@ class Todo:
     pass
 
 
-examples = {
-    "cmd": [""],
-    "dne": ["", "test2"],
-    "log": ["", "test"],
-    "fnd": ["", "log"],
-    "tdo": ["", "test2"]
-}
 
 
 def main():
-    nr = 100
+    parse(Config, " ".join(sys.argv[1:])
+    nr = Config.index or 100
     if os.path.exists(PATH):
         shutil.rmtree(PATH)
     scanner()

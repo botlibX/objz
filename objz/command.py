@@ -5,16 +5,13 @@
 
 
 import inspect
-import logging
 import os
 import sys
 import threading
 import time
-import _thread
 
 
-from objz.methods import fmt, name
-from objz.utility import importer, launch, parse
+from objz.utility import importer
 
 
 d = os.path.dirname
@@ -42,7 +39,6 @@ class Commands:
         Commands.cmds[name] = func
         Commands.names[name] = func.__module__
 
-
     @staticmethod
     def get(cmd):
         return Commands.cmds.get(cmd, None)
@@ -51,81 +47,21 @@ class Commands:
 class Event:
 
     def __init__(self):
-        self._ready = threading.Event()
-        self._thr = None
-        self.args = []
-        self.channel = ""
         self.ctime = time.time()
-        self.orig = ""
-        self.rest = ""
         self.result = {}
-        self.txt = ""
         self.type = "event"
 
     def display(self):
         for tme in sorted(self.result):
             self.dosay(
-                       self.channel,
                        self.result[tme]
                       )
 
-    def dosay(self, channel, txt):
-        print(txt)
-
-    def ready(self):
-        self._ready.set()
+    def dosay(self, txt):
+        raise NotImplementedError("dosay")
 
     def reply(self, txt):
         self.result[time.time()] = txt
-
-    def wait(self, timeout=None):
-        try:
-            self._ready.wait()
-            if self._thr:
-                self._thr.join(timeout)
-        except (KeyboardInterrupt, EOFError):
-            _thread.interrupt_main()
-
-
-class Handler:
-
-    def __init__(self):
-        self.cbs = {}
-        self.queue = queue.Queue()
-
-    def callback(self, event):
-        func = self.cbs.get(event.type, None)
-        if func:
-            name = event.txt and event.txt.split()[0]
-            event._thr = launch(func, event, name=name)
-        else:
-            event.ready()
-
-    def loop(self):
-        while True:
-            try:
-                event = self.poll()
-                if event is None:
-                    break
-                event.orig = repr(self)
-                self.callback(event)
-            except (KeyboardInterrupt, EOFError):
-                _thread.interrupt_main()
-
-    def poll(self):
-        return self.queue.get()
-
-    def put(self, event):
-        self.queue.put(event)
-
-    def register(self, type, callback):
-        self.cbs[type] = callback
-
-    def start(self):
-        launch(self.loop)
-
-    def stop(self):
-        self.queue.put(None)
 
 
 class Mods:
@@ -141,7 +77,6 @@ class Mods:
 def command(evt):
     parse(evt, evt.txt)
     func = Commands.get(evt.cmd)
-    print(func, fmt(evt))
     if func:
         func(evt)
         evt.display()
@@ -171,6 +106,59 @@ def modules():
     return sorted(mods)
 
 
+def parse(obj, txt=""):
+    if not txt:
+        if "txt" in dir(obj):
+            txt = obj.txt
+    args = []
+    setattr(obj, "args", getattr(obj, "args", []))
+    setattr(obj, "cmd" , getattr(obj, "cmd", ""))
+    setattr(obj, "gets", getattr(obj, "gets", {}))
+    setattr(obj, "index", getattr(obj, "index", None))
+    setattr(obj, "inits", getattr(obj, "inits", ""))
+    setattr(obj, "mod" ,  getattr(obj, "mod", ""))
+    setattr(obj, "opts", getattr(obj, "opts", ""))
+    setattr(obj, "rest", getattr(obj, "rest", ""))
+    setattr(obj, "result", getattr(obj, "result", ""))
+    setattr(obj, "sets", getattr(obj, "sets", {}))
+    setattr(obj, "silent", getattr(obj, "silent", {}))
+    setattr(obj, "txt", txt or getattr(obj, "txt", ""))
+    setattr(obj, "otxt", obj.txt or getattr(obj, "otxt", ""))
+    _nr = -1
+    for spli in obj.otxt.split():
+        if spli.startswith("-"):
+            try:
+                obj.index = int(spli[1:])
+            except ValueError:
+                obj.opts += spli[1:]
+            continue
+        if "-=" in spli:
+            key, value = spli.split("-=", maxsplit=1)
+            obj.silent[key] = value
+            obj.gets[key] = value
+            continue
+        if "==" in spli:
+            key, value = spli.split("==", maxsplit=1)
+            obj.gets[key] = value
+            continue
+        if "=" in spli:
+            key, value = spli.split("=", maxsplit=1)
+            obj.sets[key] = value
+            continue
+        _nr += 1
+        if _nr == 0:
+            obj.cmd = spli
+            continue
+        args.append(spli)
+    if args:
+        obj.args = args
+        obj.txt  = obj.cmd or ""
+        obj.rest = " ".join(obj.args)
+        obj.txt  = obj.cmd + " " + obj.rest
+    else:
+        obj.txt = obj.cmd or ""
+
+
 def scan(module):
     for key, cmdz in inspect.getmembers(module, inspect.isfunction):
         if key.startswith("cb"):
@@ -191,16 +179,16 @@ def scanner(names=[]):
         res.append(module)
     return res
 
+
 def __dir__():
     return (
         'Commands',
         'Event',
-        'Handler',
         'Mods',
         'command',
         'getmod',
         'modules',
-        'inits',
+        'p'
         'scan',
         'scanner'
     )

@@ -19,9 +19,9 @@ import _thread
 sys.path.insert(0, os.getcwd())
 
 
-from objz.command import Config, Mods, command, scanner
+from objz.command import Config, Mods, command, parse, scanner
 from objz.persist import Workdir
-from objz.utility import forever, launch, level, parse
+from objz.utility import Event, forever, launch, level
 
 
 Mods.dir("mods", "mods")
@@ -48,39 +48,10 @@ class Console:
         launch(self.loop)
 
 
-class Event:
+class Event(Event):
 
-    def __init__(self):
-        self._olock = threading.RLock()
-        self._ready = threading.Event()
-        self._thr = None
-        self.args = []
-        self.channel = ""
-        self.ctime = time.time()
-        self.orig = ""
-        self.rest = ""
-        self.result = {}
-        self.txt = ""
-        self.type = "event"
-
-    def display(self):
-        with self._olock:
-            for tme in sorted(self.result):
-                print(self.result[tme])
-
-    def ready(self):
-        self._ready.set()
-
-    def reply(self, txt):
-        self.result[time.time()] = txt
-
-    def wait(self, timeout=None):
-        try:
-            self._ready.wait()
-            if self._thr:
-                self._thr.join(timeout)
-        except (KeyboardInterrupt, EOFError):
-            _thread.interrupt_main()
+    def dosay(self, txt):
+        print(txt)
 
 
 def banner():
