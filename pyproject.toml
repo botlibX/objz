@@ -23,10 +23,6 @@ classifiers=[
 ]
 
 
-[project.scripts]
-"objz" = "objz.runtime:main"
-
-
 [project.urls]
 "home" = "https://pypi.org/project/objz"
 "bugs" = "https://github.com/botlibX/objz/issues"
@@ -36,5 +32,4 @@ classifiers=[
 [tool.setuptools]
 packages=[
     'objz',
-    'objz.modules'
 ]
