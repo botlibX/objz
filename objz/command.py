@@ -47,6 +47,7 @@ class Commands:
 class Event:
 
     def __init__(self):
+        self._ready = threading.Event()
         self.ctime = time.time()
         self.result = {}
         self.type = "event"
@@ -56,12 +57,19 @@ class Event:
             self.dosay(
                        self.result[tme]
                       )
+        self.ready()
 
     def dosay(self, txt):
         raise NotImplementedError("dosay")
 
+    def ready(self):
+        self._ready.set()
+
     def reply(self, txt):
         self.result[time.time()] = txt
+
+    def wait(self):
+        self._ready.wait()
 
 
 class Mods:
