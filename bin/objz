@@ -28,26 +28,6 @@ Mods.dir("mods", "mods")
 Workdir.wdr = os.path.expanduser(f"~/.{Config.name}")
 
 
-class Console:
-
-    def loop(self):
-        while True:
-            try:
-                event = self.poll()
-                if event.txt:
-                    command(event)
-            except (KeyboardInterrupt, EOFError):
-                _thread.interrupt_main()
-
-    def poll(self):
-        event = Event()
-        event.txt = input("> ")
-        return event
-
-    def start(self):
-        launch(self.loop)
-
-
 class Event(Event):
 
     def dosay(self, txt):
@@ -68,18 +48,6 @@ def check(txt):
             if char in arg:
                 return True
     return False
-
-
-def console():
-    txt = " ".join(sys.argv[1:])
-    parse(Config, txt)
-    level(Config.level)
-    if "v" in Config.opts:
-        banner()
-    scanner()
-    csl = Console()
-    csl.start()
-    forever()
 
 
 def control():
@@ -111,12 +79,5 @@ def wrap(func):
             termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, old)
 
 
-def main():
-    if check("c"):
-        wrap(console)
-    else:
-        wrapped(control)
-
-
 if __name__ == "__main__":
-    main()
+    wrapped(control)
