@@ -26,26 +26,6 @@ LEVELS = {
 }
 
 
-class Event:
-
-    def __init__(self):
-        self.ctime = time.time()
-        self.result = {}
-        self.type = "event"
-
-    def display(self):
-        for tme in sorted(self.result):
-            self.dosay(
-                       self.result[tme]
-                      )
-
-    def dosay(self, txt):
-        raise NotImplementedError("dosay")
-
-    def reply(self, txt):
-        self.result[time.time()] = txt
-
-
 class Formatter(logging.Formatter):
 
     def format(self, record):
@@ -191,8 +171,11 @@ def __dir__():
     return (
        'elapsed',
        'forever',
+       'getmod',
+       'importer',
        'launch',
        'level',
+       'modules',
        'name',
        'scanner'
     )
