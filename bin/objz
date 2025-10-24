@@ -19,50 +19,13 @@ import _thread
 sys.path.insert(0, os.getcwd())
 
 
+from objz.command import Config, Mods, command, scanner
 from objz.persist import Workdir
-
-
-from mods import Config, Mods
-from mods import command, forever, launch, parse, scanner
+from objz.utility import forever, launch, level, parse
 
 
 Mods.dir("mods", "mods")
 Workdir.wdr = os.path.expanduser(f"~/.{Config.name}")
-
-
-"logging"
-
-
-LEVELS = {
-    'debug': logging.DEBUG,
-    'info': logging.INFO,
-    'warning': logging.WARNING,
-    'warn': logging.WARNING,
-    'error': logging.ERROR,
-    'critical': logging.CRITICAL,
-}
-
-
-class Formatter(logging.Formatter):
-
-    def format(self, record):
-        record.module = record.module.upper()
-        return logging.Formatter.format(self, record)
-
-
-def level(loglevel="debug"):
-    if loglevel != "none":
-        datefmt = "%H:%M:%S"
-        format_short = "%(module).3s %(message)-76s"
-        ch = logging.StreamHandler()
-        ch.setLevel(LEVELS.get(loglevel))
-        formatter = Formatter(fmt=format_short, datefmt=datefmt)
-        ch.setFormatter(formatter)
-        logger = logging.getLogger()
-        logger.addHandler(ch)
-
-
-"console"
 
 
 class Console:
@@ -136,9 +99,6 @@ def check(txt):
     return False
 
 
-"scripts"
-
-
 def console():
     txt = " ".join(sys.argv[1:])
     parse(Config, txt)
@@ -158,10 +118,6 @@ def control():
     evt = Event()
     evt.txt = txt
     command(evt)
-
-
-"runtime"
-
 
 
 def wrapped(func):

@@ -14,17 +14,16 @@ import time
 sys.path.insert(0, os.getcwd())
 
 
-from objz.command import Commands, Config, command, parse
-from objz.methods import fmt, getpath, ident
+from objz.command import Commands, Config, Event, Mods, command, parse, scanner
+from objz.methods import fmt, ident
 from objz.objects import Object
-from objz.persist import find, fntime, read, skel, types, write
-from objz.runtime import Event
+from objz.persist import Workdir, find, fntime, getpath, read, skel, types, write
 
+
+Mods.dir("mods", "mods")
+Workdir.wdr = ".test"
 
 PATH = ".test"
-
-
-"classes"
 
 
 class Log:
@@ -50,12 +49,12 @@ def main():
     nr = 100
     if os.path.exists(PATH):
         shutil.rmtree(PATH)
+    scanner()
     for _x in range(nr):
         for cmd, example in examples.items():
             for ex in example:
-                txt = f"{cmd} {ex}"
                 evt = Event()
-                parse(evt, txt.strip())
+                evt.txt = f"{cmd} {ex}"
                 command(evt)
 
 

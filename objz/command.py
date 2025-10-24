@@ -4,7 +4,6 @@
 "modules"
 
 
-import importlib.util
 import inspect
 import logging
 import os
@@ -14,8 +13,8 @@ import time
 import _thread
 
 
-from objz.methods import name
-from objz,utility import launch
+from objz.methods import fmt, name
+from objz.utility import importer, launch, parse
 
 
 d = os.path.dirname
@@ -49,12 +48,127 @@ class Commands:
         return Commands.cmds.get(cmd, None)
 
 
+class Event:
+
+    def __init__(self):
+        self._ready = threading.Event()
+        self._thr = None
+        self.args = []
+        self.channel = ""
+        self.ctime = time.time()
+        self.orig = ""
+        self.rest = ""
+        self.result = {}
+        self.txt = ""
+        self.type = "event"
+
+    def display(self):
+        for tme in sorted(self.result):
+            self.dosay(
+                       self.channel,
+                       self.result[tme]
+                      )
+
+    def dosay(self, channel, txt):
+        print(txt)
+
+    def ready(self):
+        self._ready.set()
+
+    def reply(self, txt):
+        self.result[time.time()] = txt
+
+    def wait(self, timeout=None):
+        try:
+            self._ready.wait()
+            if self._thr:
+                self._thr.join(timeout)
+        except (KeyboardInterrupt, EOFError):
+            _thread.interrupt_main()
+
+
+class Handler:
+
+    def __init__(self):
+        self.cbs = {}
+        self.queue = queue.Queue()
+
+    def callback(self, event):
+        func = self.cbs.get(event.type, None)
+        if func:
+            name = event.txt and event.txt.split()[0]
+            event._thr = launch(func, event, name=name)
+        else:
+            event.ready()
+
+    def loop(self):
+        while True:
+            try:
+                event = self.poll()
+                if event is None:
+                    break
+                event.orig = repr(self)
+                self.callback(event)
+            except (KeyboardInterrupt, EOFError):
+                _thread.interrupt_main()
+
+    def poll(self):
+        return self.queue.get()
+
+    def put(self, event):
+        self.queue.put(event)
+
+    def register(self, type, callback):
+        self.cbs[type] = callback
+
+    def start(self):
+        launch(self.loop)
+
+    def stop(self):
+        self.queue.put(None)
+
+
+class Mods:
+
+    debug = False
+    dirs = {}
+
+    @staticmethod
+    def dir(name, path):
+        Mods.dirs[name] = path
+
+
 def command(evt):
     parse(evt, evt.txt)
     func = Commands.get(evt.cmd)
+    print(func, fmt(evt))
     if func:
         func(evt)
         evt.display()
+
+
+def getmod(name):
+    for nme, path in Mods.dirs.items():
+        mname = nme + "." +  name
+        module = sys.modules.get(mname, None)
+        if module:
+            return module
+        pth = os.path.join(path, f"{name}.py")
+        mod = importer(mname, pth)
+        if mod:
+            return mod
+
+
+def modules():
+    mods = []
+    for _name, path in Mods.dirs.items():
+        if not os.path.exists(path):
+            continue
+        mods.extend([
+            x[:-3] for x in os.listdir(path)
+            if x.endswith(".py") and not x.startswith("__")
+           ])
+    return sorted(mods)
 
 
 def scan(module):
@@ -77,79 +191,11 @@ def scanner(names=[]):
         res.append(module)
     return res
 
-
-class Mods:
-
-    debug = False
-    dirs = {}
-
-    @staticmethod
-    def dir(name, path):
-        Mods.dirs[name] = path
-
-
-def getmod(name):
-    for nme, path in Mods.dirs.items():
-        mname = nme + "." +  name
-        module = sys.modules.get(mname, None)
-        if module:
-            return module
-        pth = os.path.join(path, f"{name}.py")
-        mod = importer(mname, pth)
-        if mod:
-            return mod
-
-
-def importer(name, pth):
-    if not os.path.exists(pth):
-        return
-    try:
-        spec = importlib.util.spec_from_file_location(name, pth)
-        if not spec or not spec.loader:
-            return
-        mod = importlib.util.module_from_spec(spec)
-        if not mod:
-            return
-        sys.modules[name] = mod
-        spec.loader.exec_module(mod)
-        logging.info("load %s", pth)
-        return mod
-    except Exception as ex:
-        logging.exception(ex)
-        _thread.interrupt_main()
-
-
-def inits(names):
-    modz = []
-    for nme in modules():
-        if nme not in names:
-            continue
-        try:
-            module = getmod(nme)
-            if module and "init" in dir(module):
-                thr = launch(module.init)
-                modz.append((module, thr))
-        except Exception as ex:
-            logging.exception(ex)
-            _thread.interrupt_main()
-    return modz
-
-
-def modules():
-    mods = []
-    for _name, path in Mods.dirs.items():
-        if not os.path.exists(path):
-            continue
-        mods.extend([
-            x[:-3] for x in os.listdir(path)
-            if x.endswith(".py") and not x.startswith("__")
-           ])
-    return sorted(mods)
-
-
 def __dir__():
     return (
         'Commands',
+        'Event',
+        'Handler',
         'Mods',
         'command',
         'getmod',

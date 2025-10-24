@@ -4,9 +4,16 @@
 "utilities"
 
 
+import importlib
+import importlib.util
 import logging
+import os
+import sys
 import threading
 import time
+
+
+import _thread
 
 
 LEVELS = {
@@ -73,6 +80,25 @@ def forever():
             break
 
 
+def importer(name, pth):
+    if not os.path.exists(pth):
+        return
+    try:
+        spec = importlib.util.spec_from_file_location(name, pth)
+        if not spec or not spec.loader:
+            return
+        mod = importlib.util.module_from_spec(spec)
+        if not mod:
+            return
+        sys.modules[name] = mod
+        spec.loader.exec_module(mod)
+        logging.info("load %s", pth)
+        return mod
+    except Exception as ex:
+        logging.exception(ex)
+        _thread.interrupt_main()
+
+
 def launch(func, *args, **kwargs):
     thread = threading.Thread(None, func, name(func), tuple(args), dict(kwargs), daemon=True)
     thread.start()
@@ -90,6 +116,24 @@ def level(loglevel="debug"):
         ch.setFormatter(formatter)
         logger = logging.getLogger()
         logger.addHandler(ch)
+
+
+def name(obj, short=False):
+    typ = type(obj)
+    res = ""
+    if "__builtins__" in dir(typ):
+        res = obj.__name__
+    elif "__self__" in dir(obj):
+        res = f"{obj.__self__.__class__.__name__}.{obj.__name__}"
+    elif "__class__" in dir(obj) and "__name__" in dir(obj):
+        res = f"{obj.__class__.__name__}.{obj.__name__}"
+    elif "__class__" in dir(obj):
+        res =  f"{obj.__class__.__module__}.{obj.__class__.__name__}"
+    elif "__name__" in dir(obj):
+        res = f"{obj.__class__.__name__}.{obj.__name__}"
+    if short:
+        res = res.split(".")[-1]
+    return res
 
 
 def parse(obj, txt=""):
@@ -150,5 +194,6 @@ def __dir__():
        'forever',
        'launch',
        'level',
+       'name',
        'parse'
     )
