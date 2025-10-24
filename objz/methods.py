@@ -91,6 +91,59 @@ def name(obj, short=False):
     return res
 
 
+def parse(obj, txt=""):
+    if not txt:
+        if "txt" in dir(obj):
+            txt = obj.txt
+    args = []
+    setattr(obj, "args", getattr(obj, "args", []))
+    setattr(obj, "cmd" , getattr(obj, "cmd", ""))
+    setattr(obj, "gets", getattr(obj, "gets", {}))
+    setattr(obj, "index", getattr(obj, "index", None))
+    setattr(obj, "inits", getattr(obj, "inits", ""))
+    setattr(obj, "mod" ,  getattr(obj, "mod", ""))
+    setattr(obj, "opts", getattr(obj, "opts", ""))
+    setattr(obj, "rest", getattr(obj, "rest", ""))
+    setattr(obj, "result", getattr(obj, "result", ""))
+    setattr(obj, "sets", getattr(obj, "sets", {}))
+    setattr(obj, "silent", getattr(obj, "silent", {}))
+    setattr(obj, "txt", txt or getattr(obj, "txt", ""))
+    setattr(obj, "otxt", obj.txt or getattr(obj, "otxt", ""))
+    _nr = -1
+    for spli in obj.otxt.split():
+        if spli.startswith("-"):
+            try:
+                obj.index = int(spli[1:])
+            except ValueError:
+                obj.opts += spli[1:]
+            continue
+        if "-=" in spli:
+            key, value = spli.split("-=", maxsplit=1)
+            obj.silent[key] = value
+            obj.gets[key] = value
+            continue
+        if "==" in spli:
+            key, value = spli.split("==", maxsplit=1)
+            obj.gets[key] = value
+            continue
+        if "=" in spli:
+            key, value = spli.split("=", maxsplit=1)
+            obj.sets[key] = value
+            continue
+        _nr += 1
+        if _nr == 0:
+            obj.cmd = spli
+            continue
+        args.append(spli)
+    if args:
+        obj.args = args
+        obj.txt  = obj.cmd or ""
+        obj.rest = " ".join(obj.args)
+        obj.txt  = obj.cmd + " " + obj.rest
+    else:
+        obj.txt = obj.cmd or ""
+
+
 def search(obj, selector, matching=False):
     res = False
     for key, value in items(selector):
@@ -115,5 +168,6 @@ def __dir__():
         'fqn',
         'ident',
         'name',
+        'parse',
         'search'
     )

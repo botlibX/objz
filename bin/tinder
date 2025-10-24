@@ -14,14 +14,13 @@ import time
 sys.path.insert(0, os.getcwd())
 
 
-from objz.command import Commands, Config, Event, Mods, command, parse, scanner
+from objz.command import Commands, Config, Event, command, parse, scanner
 from objz.methods import fmt, ident
 from objz.objects import Object
 from objz.persist import Workdir, find, fntime, getpath, read, skel, types, write
 from objz.utility import elapsed, launch
 
 
-Mods.dir("mods", "mods")
 Workdir.wdr = ".test"
 
 
@@ -54,22 +53,25 @@ def main():
     nr = Config.index or 100
     if os.path.exists(Workdir.wdr):
         shutil.rmtree(Workdir.wdr)
-    scanner()
+    scanner("mods", "mods")
     starttime = time.time()
     thrs = []
     for _x in range(nr):
         thrs.append(launch(payload))
     for thr in thrs:
         thr.join()
+    gotcha = []
     for evt in events:
         evt.wait()
+        gotcha.append(evt)
+    nrevents = len(events)
+    for evt in gotcha:
+        events.remove(evt)
     endtime = time.time()
     lap = elapsed(endtime-starttime)
-    nrevents = len(events)
     percall = (endtime-starttime)/nrevents
     if "v" in Config.opts:
-        print(f"debug is {Mods.debug}")
-        print(f"{nrevents} events left.")
+        print(f"{len(events)} events left.")
         print(f"total: {lap} nrs: {nr} call: %.6fs" % percall)
     sys.exit()
 

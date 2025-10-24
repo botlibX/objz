@@ -100,6 +100,17 @@ def forever():
             break
 
 
+def getmod(path, modname, name):
+    mname = modname + "." +  name
+    module = sys.modules.get(mname, None)
+    if module:
+        return module
+    pth = os.path.join(path, f"{name}.py")
+    mod = importer(mname, pth)
+    if mod:
+        return mod
+
+
 def importer(name, pth):
     if not os.path.exists(pth):
         return
@@ -137,6 +148,13 @@ def level(loglevel="debug"):
         logger.addHandler(ch)
 
 
+def modules(path):
+    return sorted([
+                   x[:-3] for x in os.listdir(path)
+                   if x.endswith(".py") and not x.startswith("__")
+                  ])
+
+
 def name(obj, short=False):
     typ = type(obj)
     res = ""
@@ -155,11 +173,26 @@ def name(obj, short=False):
     return res
 
 
+
+def scanner(path, modname, names=[]):
+    res = []
+    for nme in modules(path):
+        if names and nme not in names:
+            continue
+        module = getmod(path, modname, nme)
+        if not module:
+            continue
+        scan(module)
+        res.append(module)
+    return res
+
+
 def __dir__():
     return (
        'elapsed',
        'forever',
        'launch',
        'level',
-       'name'
+       'name',
+       'scanner'
     )

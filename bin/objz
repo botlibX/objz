@@ -19,12 +19,12 @@ import _thread
 sys.path.insert(0, os.getcwd())
 
 
-from objz.command import Config, Mods, command, parse, scanner
+from objz.command import Config, Event, command, scanner
+from objz.methods import parse
 from objz.persist import Workdir
-from objz.utility import Event, forever, launch, level
+from objz.utility import forever, launch, level
 
 
-Mods.dir("mods", "mods")
 Workdir.wdr = os.path.expanduser(f"~/.{Config.name}")
 
 
@@ -53,7 +53,7 @@ def check(txt):
 def control():
     txt = " ".join(sys.argv[1:])
     parse(Config, txt)
-    scanner()
+    scanner("mods", "mods")
     evt = Event()
     evt.txt = txt
     command(evt)
