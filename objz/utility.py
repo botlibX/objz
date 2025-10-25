@@ -153,22 +153,6 @@ def importer(name, pth):
         _thread.interrupt_main()
 
 
-def inits(path, modname, names):
-    modz = []
-    for name in modules(path):
-        if name not in names:
-            continue
-        try:
-            module = getmod(path, modname, name)
-            if module and "init" in dir(module):
-                thr = launch(module.init)
-                modz.append((module, thr))
-        except Exception as ex:
-            logging.exception(ex)
-            _thread.interrupt_main()
-    return modz
-
-
 def launch(func, *args, **kwargs):
     thread = threading.Thread(None, func, name(func), tuple(args), dict(kwargs), daemon=True)
     thread.start()
@@ -191,13 +175,6 @@ def md5sum(path):
     with open(path, "r", encoding="utf-8") as file:
         txt = file.read().encode("utf-8")
         return hashlib.md5(txt).hexdigest()
-
-
-def modules(path):
-    return sorted([
-                   x[:-3] for x in os.listdir(path)
-                   if x.endswith(".py") and not x.startswith("__")
-                  ])
 
 
 def name(obj, short=False):
@@ -224,19 +201,6 @@ def privileges():
     pwnam2 = pwd.getpwnam(getpass.getuser())
     os.setgid(pwnam2.pw_gid)
     os.setuid(pwnam2.pw_uid)
-
-
-def scanner(path, modname, names=[]):
-    res = []
-    for nme in modules(path):
-        if names and nme not in names:
-            continue
-        module = getmod(path, modname, nme)
-        if not module:
-            continue
-        scan(module)
-        res.append(module)
-    return res
 
 
 def spl(txt):
