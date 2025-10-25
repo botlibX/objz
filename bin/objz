@@ -19,10 +19,10 @@ import _thread
 sys.path.insert(0, os.getcwd())
 
 
-from objz.command import Config, Event, Mods, command, scanner
+from objz.command import Config, Event, command, forever, level, scanner
 from objz.methods import parse
+from objz.package import Mods
 from objz.persist import Workdir
-from objz.utility import forever, launch, level
 
 
 Mods.dir("mods", "mods")

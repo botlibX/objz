@@ -8,6 +8,7 @@
 import os
 import shutil
 import sys
+import threading
 import time
 
 
@@ -15,12 +16,14 @@ sys.path.insert(0, os.getcwd())
 
 
 from objz.command import Commands, Config, Event, command, parse, scanner
-from objz.methods import fmt, ident
+from objz.methods import fmt, ident, name
 from objz.objects import Object
+from objz.package import Mods
 from objz.persist import Workdir, find, fntime, getpath, read, skel, types, write
-from objz.utility import elapsed, launch
+from objz.utility import elapsed
 
 
+Mods.dir("mods", "mods")
 Workdir.wdr = ".test"
 
 
@@ -40,20 +43,27 @@ class Event(Event):
         print(txt)
 
 
+def launch(func, *args, **kwargs):
+    thread = threading.Thread(None, func, name(func), tuple(args), dict(kwargs), daemon=True)
+    thread.start()
+    return thread
+
+
 def payload():
-        for cmd, example in examples.items():
-            for ex in example:
-                evt = Event()
-                evt.txt = f"{cmd} {ex}"
-                command(evt)
-                events.append(evt)
+    for cmd, example in examples.items():
+        for ex in example:
+            evt = Event()
+            evt.txt = f"{cmd} {ex}"
+            command(evt)
+            events.append(evt)
+
 
 def main():
     parse(Config, " ".join(sys.argv[1:]))
     nr = Config.index or 100
     if os.path.exists(Workdir.wdr):
         shutil.rmtree(Workdir.wdr)
-    scanner("mods", "mods")
+    scanner()
     starttime = time.time()
     thrs = []
     for _x in range(nr):
@@ -78,4 +88,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
