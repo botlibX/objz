@@ -6,20 +6,16 @@
 "main"
 
 
-import logging
 import os
-import readline
 import sys
 import termios
-import threading
 import time
-import _thread
 
 
 sys.path.insert(0, os.getcwd())
 
 
-from objz.command import Config, Event, command, forever, level, scanner
+from objz.command import Config, Event, command, scanner
 from objz.methods import parse
 from objz.package import Mods
 from objz.persist import Workdir

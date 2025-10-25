@@ -15,11 +15,10 @@ import time
 sys.path.insert(0, os.getcwd())
 
 
-from objz.command import Commands, Config, Event, command, parse, scanner
-from objz.methods import fmt, ident, name
-from objz.objects import Object
+from objz.command import Config, Event, command, parse, scanner
+from objz.methods import name
 from objz.package import Mods
-from objz.persist import Workdir, find, fntime, getpath, read, skel, types, write
+from objz.persist import Workdir
 from objz.utility import elapsed
 
 
