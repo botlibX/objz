@@ -21,6 +21,7 @@ d = os.path.dirname
 class Config:
 
     debug = False
+    default = ""
     init  = ""
     level = "warn"
     name = d(d(__file__)).split(os.sep)[-1]
@@ -78,6 +79,7 @@ def command(evt):
     if func:
         func(evt)
         evt.display()
+    evt.ready()
 
 
 def scan(module):

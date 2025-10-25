@@ -18,7 +18,7 @@ def dne(event):
         return
     selector = {'txt': event.args[0]}
     nmr = 0
-    for fnm, obj in find(Workdir.wdr, "todo", selector):
+    for fnm, obj in find("todo", selector):
         nmr += 1
         obj.__deleted__ = True
         write(obj, fnm)
@@ -34,5 +34,5 @@ def tdo(event):
         return
     obj = Todo()
     obj.txt = event.rest
-    write(obj, getpath(Workdir.wdr, obj))
+    write(obj)
     event.reply("ok")

@@ -8,14 +8,14 @@ import time
 
 
 from objz.methods import fmt
-from objz.persist import Workdir, find, fntime, skel, types
+from objz.persist import find, fntime, skel, store, types
 from objz.utility import elapsed
 
 
 def fnd(event):
-    skel(Workdir.wdr)
+    skel(store())
     if not event.rest:
-        res = sorted([x.split('.')[-1].lower() for x in types(Workdir.wdr)])
+        res = sorted([x.split('.')[-1].lower() for x in types()])
         if res:
             event.reply(",".join(res))
         else:
@@ -23,7 +23,7 @@ def fnd(event):
         return
     otype = event.args[0]
     nmr = 0
-    for fnm, obj in list(find(Workdir.wdr, otype, event.gets)):
+    for fnm, obj in list(find(otype, event.gets)):
         event.reply(f"{nmr} {fmt(obj)} {elapsed(time.time()-fntime(fnm))}")
         nmr += 1
     if not nmr:

@@ -4,6 +4,7 @@
 "utilities"
 
 
+import hashlib
 import importlib
 import importlib.util
 import logging
@@ -14,6 +15,16 @@ import time
 
 
 import _thread
+
+
+FORMATS = [
+    "%Y-%M-%D %H:%M:%S",
+    "%Y-%m-%d %H:%M:%S",
+    "%Y-%m-%d",
+    "%d-%m-%Y",
+    "%d-%m",
+    "%m-%d",
+]
 
 
 LEVELS = {
@@ -31,6 +42,26 @@ class Formatter(logging.Formatter):
     def format(self, record):
         record.module = record.module.upper()
         return logging.Formatter.format(self, record)
+
+
+def daemon(verbose=False):
+    pid = os.fork()
+    if pid != 0:
+        os._exit(0)
+    os.setsid()
+    pid2 = os.fork()
+    if pid2 != 0:
+        os._exit(0)
+    if not verbose:
+        with open('/dev/null', 'r', encoding="utf-8") as sis:
+            os.dup2(sis.fileno(), sys.stdin.fileno())
+        with open('/dev/null', 'a+', encoding="utf-8") as sos:
+            os.dup2(sos.fileno(), sys.stdout.fileno())
+        with open('/dev/null', 'a+', encoding="utf-8") as ses:
+            os.dup2(ses.fileno(), sys.stderr.fileno())
+    os.umask(0)
+    os.chdir("/")
+    os.nice(10)
 
 
 def elapsed(seconds, short=True):
@@ -72,6 +103,18 @@ def elapsed(seconds, short=True):
     return txt
 
 
+def extract_date(daystr):
+    daystr = daystr.encode('utf-8', 'replace').decode("utf-8")
+    res = time.time()
+    for fmat in FORMATS:
+        try:
+            res = time.mktime(time.strptime(daystr, fmat))
+            break
+        except ValueError:
+            pass
+    return res
+
+
 def forever():
     while True:
         try:
@@ -110,6 +153,22 @@ def importer(name, pth):
         _thread.interrupt_main()
 
 
+def inits(path, modname, names):
+    modz = []
+    for name in modules(path):
+        if name not in names:
+            continue
+        try:
+            module = getmod(path, modname, name)
+            if module and "init" in dir(module):
+                thr = launch(module.init)
+                modz.append((module, thr))
+        except Exception as ex:
+            logging.exception(ex)
+            _thread.interrupt_main()
+    return modz
+
+
 def launch(func, *args, **kwargs):
     thread = threading.Thread(None, func, name(func), tuple(args), dict(kwargs), daemon=True)
     thread.start()
@@ -126,6 +185,12 @@ def level(loglevel="debug"):
         ch.setFormatter(formatter)
         logger = logging.getLogger()
         logger.addHandler(ch)
+
+
+def md5sum(path):
+    with open(path, "r", encoding="utf-8") as file:
+        txt = file.read().encode("utf-8")
+        return hashlib.md5(txt).hexdigest()
 
 
 def modules(path):
@@ -153,6 +218,13 @@ def name(obj, short=False):
     return res
 
 
+def privileges():
+    import getpass
+    import pwd
+    pwnam2 = pwd.getpwnam(getpass.getuser())
+    os.setgid(pwnam2.pw_gid)
+    os.setuid(pwnam2.pw_uid)
+
 
 def scanner(path, modname, names=[]):
     res = []
@@ -167,15 +239,28 @@ def scanner(path, modname, names=[]):
     return res
 
 
+def spl(txt):
+    try:
+        result = txt.split(",")
+    except (TypeError, ValueError):
+        result = [
+            txt,
+        ]
+    return [x for x in result if x]
+
+
 def __dir__():
     return (
        'elapsed',
        'forever',
        'getmod',
        'importer',
+       'inits',
        'launch',
        'level',
+       'md5sum',
        'modules',
        'name',
-       'scanner'
+       'scanner',
+       'spl'
     )

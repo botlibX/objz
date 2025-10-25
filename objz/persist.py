@@ -12,7 +12,7 @@ import time
 
 
 from .marshal import dump, load
-from .methods import deleted, ident, search
+from .methods import deleted, fqn, ident, search
 from .objects import Object, update
 
 
@@ -49,10 +49,10 @@ def cdir(path):
     pth.parent.mkdir(parents=True, exist_ok=True)
 
 
-def find(path, type=None, selector=None, removed=False, matching=False):
+def find(type=None, selector=None, removed=False, matching=False):
     if selector is None:
         selector = {}
-    for pth in fns(path, type):
+    for pth in fns(type):
         obj = Cache.get(pth)
         if not obj:
             obj = Object()
@@ -65,9 +65,10 @@ def find(path, type=None, selector=None, removed=False, matching=False):
         yield pth, obj
 
 
-def fns(path, type=None):
+def fns(type=None):
     if type is not None:
         type = type.lower()
+    path = store()
     for rootdir, dirs, _files in os.walk(path, topdown=True):
         for dname in dirs:
             if dname.count("-") != 2:
@@ -92,8 +93,23 @@ def fntime(daystr):
     return float(timed)
 
 
-def getpath(path, obj):
-    return os.path.join(path, ident(obj))
+def getpath(obj):
+    return store(ident(obj))
+
+
+def last(obj, selector=None):
+    if selector is None:
+        selector = {}
+    result = sorted(
+                    find(fqn(obj), selector),
+                    key=lambda x: fntime(x[0])
+                   )
+    res = ""
+    if result:
+        inp = result[-1]
+        update(obj, inp[-1])
+        res = inp[0]
+    return res
 
 
 def skel(path):
@@ -102,7 +118,12 @@ def skel(path):
     return str(pth)
 
 
-def types(path):
+def store(fnm=""):
+    return os.path.join(Workdir.wdr, "store", fnm)
+
+
+def types():
+    path = store()
     skel(path)
     return os.listdir(path)
 
@@ -117,8 +138,10 @@ def read(obj, path):
                 raise ex
 
 
-def write(obj, path):
+def write(obj, path=None):
     with lock:
+        if path is None:
+            path = getpath(obj)
         cdir(path)
         with open(path, "w", encoding="utf-8") as fpt:
             dump(obj, fpt, indent=4)

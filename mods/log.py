@@ -18,6 +18,6 @@ def log(event):
         return
     o = Log()
     o.txt = event.rest
-    write(o, getpath(Workdir.wdr, o))
+    write(o)
     event.reply("ok")
     

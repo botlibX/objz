@@ -8,4 +8,4 @@ from objz.command import modules
 
 
 def mod(event):
-    event.reply(",".join(modules()))
+    event.reply(",".join(modules('mods')))
