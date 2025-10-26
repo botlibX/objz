@@ -10,9 +10,8 @@ import logging
 from random import SystemRandom
 
 
-from objz.clients import Fleet
-from objz.handler import Event
-from objz.threads import Repeater
+from objr.handler import Event, Fleet
+from objz.repeats import Repeater
 
 
 rand = SystemRandom()

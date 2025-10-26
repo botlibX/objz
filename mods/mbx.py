@@ -9,8 +9,9 @@ import os
 import time
 
 
-from objz.persist import Object, find, keys, update, write
-from objz.utility import extract_date, fmt
+from objz.objects import Object, fmt, keys, update
+from objz.persist import read, write
+from objz.repeats import elapsed, extract_date, spl
 
 
 class Email(Object):

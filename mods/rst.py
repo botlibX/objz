@@ -13,7 +13,8 @@ import time
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 
-from objz.persist import Object, store, types
+from objz.objects import Object
+from objz.persist import store, types
 from objz.threads import launch
 
 

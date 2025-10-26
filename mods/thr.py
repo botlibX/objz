@@ -8,8 +8,7 @@ import threading
 import time
 
 
-from objz.command import STARTTIME
-from objz.utility import elapsed
+from . import STARTTIME, elapsed
 
 
 def thr(event):

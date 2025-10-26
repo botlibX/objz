@@ -12,8 +12,8 @@ import threading
 import time
 
 
-from objz.clients import Fleet
-from objz.persist import Object
+from objr.handler import Fleet
+from objz.objects import Object
 from objz.threads import launch
 
 

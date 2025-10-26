@@ -15,12 +15,12 @@ import threading
 import time
 
 
-from objz.clients import Fleet, Output
-from objz.command import Config, command
-from objz.handler import Event
-from objz.persist import Object, edit, getpath, keys, last, write
-from objz.threads import LEVELS, launch
-from objz.utility import fmt
+from objr.command import command
+from objr.handler import Fleet, Output
+from objz.logging import LEVELS
+from objz.objects import Object, edit, fmt, keys
+from objz.persist import getpath, last, write
+from objz.threads import launch
 
 
 IGNORE = ["PING", "PONG", "PRIVMSG"] 
@@ -32,6 +32,10 @@ saylock  = threading.RLock()
 
 def getmain():
    return sys.modules["__main__"]
+
+
+Config = getattr(getmain(), 'Config', None)
+Event = getattr(getmain(), 'Event', None)
 
 
 def init():
@@ -575,7 +579,9 @@ def cb_privmsg(evt):
     if not bot.cfg.commands:
         return
     if evt.txt:
-        if evt.txt[0] in ["!",]:
+        if evt.txt[0] in [
+            "!",
+        ]:
             evt.txt = evt.txt[1:]
         elif evt.txt.startswith(f"{bot.cfg.nick}:"):
             evt.txt = evt.txt[len(bot.cfg.nick) + 1 :]
@@ -584,9 +590,7 @@ def cb_privmsg(evt):
         if evt.txt:
             evt.txt = evt.txt[0].lower() + evt.txt[1:]
         if evt.txt:
-            evt.type = "command"
             launch(command, evt)
-            print(evt)
 
 
 def cb_quit(evt):

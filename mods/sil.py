@@ -4,7 +4,7 @@
 "enable silence mode"
 
 
-from objz.clients import Fleet
+from objr.handler import Fleet
  
 
 def sil(event):

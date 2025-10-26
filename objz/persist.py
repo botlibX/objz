@@ -4,7 +4,6 @@
 "persistence"
 
 
-import datetime
 import json
 import os
 import pathlib
@@ -13,6 +12,10 @@ import time
 
 
 lock = threading.RLock()
+
+
+from objz.marshal import dump, load
+from objz.objects import Object, deleted, fqn, update
 
 
 class Workdir:
@@ -38,9 +41,6 @@ class Cache:
             update(Cache.objs[path], obj)
         else:
             Cache.add(path, obj)
-
-
-"path"
 
 
 def cdir(path):
@@ -160,173 +160,15 @@ def write(obj, path=None):
         return path
 
 
-"object"
-
-
-class Object:
-
-    def __contains__(self, key):
-        return key in dir(self)
-
-    def __iter__(self):
-        return iter(self.__dict__)
-
-    def __len__(self):
-        return len(self.__dict__)
-
-    def __str__(self):
-        return str(self.__dict__)
-
-
-def construct(obj, *args, **kwargs):
-    if args:
-        val = args[0]
-        if isinstance(val, zip):
-            update(obj, dict(val))
-        elif isinstance(val, dict):
-            update(obj, val)
-        else:
-            update(obj, vars(val))
-    if kwargs:
-        update(obj, kwargs)
-
-
-def deleted(obj):
-    return "__deleted__" in dir(obj) and obj.__deleted__
-
-
-def edit(obj, setter, skip=True):
-    for key, val in items(setter):
-        if skip and val == "":
-            continue
-        try:
-            setattr(obj, key, int(val))
-            continue
-        except ValueError:
-            pass
-        try:
-            setattr(obj, key, float(val))
-            continue
-        except ValueError:
-            pass
-        if val in ["True", "true"]:
-            setattr(obj, key, True)
-        elif val in ["False", "false"]:
-            setattr(obj, key, False)
-        else:
-            setattr(obj, key, val)
-
-
-def fqn(obj):
-    kin = str(type(obj)).split()[-1][1:-2]
-    if kin == "type":
-        kin = f"{obj.__module__}.{obj.__name__}"
-    return kin
-
-
-def ident(obj):
-    return os.path.join(fqn(obj), *str(datetime.datetime.now()).split())
-
-
-def items(obj):
-    if isinstance(obj, dict):
-        return obj.items()
-    return obj.__dict__.items()
-
-
-def keys(obj):
-    if isinstance(obj, dict):
-        return obj.keys()
-    return obj.__dict__.keys()
-
-
-def search(obj, selector, matching=False):
-    res = False
-    for key, value in items(selector):
-        val = getattr(obj, key, None)
-        if not val:
-            continue
-        if matching and value == val:
-            res = True
-        elif str(value).lower() in str(val).lower():
-            res = True
-        else:
-            res = False
-            break
-    return res
-
-
-def update(obj, data, empty=True):
-    for key, value in items(data):
-        if not empty and not value:
-            continue
-        setattr(obj, key, value)
-
-
-def values(obj):
-    if isinstance(obj, dict):
-        return obj.values()
-    return obj.__dict__.values()
-
-
-"json serializer"
-
-
-class Encoder(json.JSONEncoder):
-
-    def default(self, o):
-        if isinstance(o, dict):
-            return o.items()
-        if isinstance(o, list):
-            return iter(o)
-        try:
-            return json.JSONEncoder.default(self, o)
-        except TypeError:
-            try:
-                return vars(o)
-            except TypeError:
-                return repr(o)
-
-
-def dump(*args, **kw):
-    ""
-    kw["cls"] = Encoder
-    return json.dump(*args, **kw)
-
-
-def dumps(*args, **kw):
-    ""
-    kw["cls"] = Encoder
-    return json.dumps(*args, **kw)
-
-
-def load(s, *args, **kw):
-    ""
-    return json.load(s, *args, **kw)
-
-
-def loads(s, *args, **kw):
-    ""
-    return json.loads(s, *args, **kw)
-
-
 def __dir__():
     return (
         'Cache',
-        'Object',
         'Workdir',
         'cdir',
-        'construct',
-        'deleted',
-        'edit',
         'find',
         'fntime',
-        'items',
-        'keys',
         'read',
         'skel',
         'types',
-        'update',
-        'values',
         'write'
     )

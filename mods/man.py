@@ -14,10 +14,10 @@ N A M E
 S Y N O P S I S
 
 
-    objz <cmd> [key=val] [key==val]
-    objz -cvaw [init=mod1,mod2]
-    objz -d
-    objz -s
+    objr <cmd> [key=val] [key==val]
+    objr -cvaw [init=mod1,mod2]
+    objr -d
+    objr -s
 
 
 D E S C R I P T I O N
@@ -44,57 +44,57 @@ I N S T A L L
 
     installation is done with pipx
 
-    $ pipx install objz
+    $ pipx install objr
     $ pipx ensurepath
 
     <new terminal>
 
-    $ objz srv > tob.service
-    $ sudo mv objz.service /etc/systemd/system/
-    $ sudo systemctl enable objz --now
+    $ objr srv > tob.service
+    $ sudo mv objr.service /etc/systemd/system/
+    $ sudo systemctl enable objr --now
 
-    joins #objz on localhost
+    joins #objr on localhost
 
 
 U S A G E 
 
 
-    use objz to control the program, default it does nothing
+    use objr to control the program, default it does nothing
 
-    $ objz
+    $ objr
     $
 
     see list of commands
 
 
-    $ objz cmd
+    $ objr cmd
     cfg,cmd,dne,dpl,err,exp,imp,log,mod,mre,nme,
     pwd,rem,req,res,rss,srv,syn,tdo,thr,upt
 
 
     start console
 
-    $ objz -c
+    $ objr -c
 
 
     start console and run irc and rss 
 
-    $ objz -c init=irc,rss
+    $ objr -c init=irc,rss
 
     list available modules
 
-    $ objz mod
+    $ objr mod
     err,flt,fnd,irc,llm,log,mbx,mdl,mod,req,rss,
     rst,slg,tdo,thr,tmr,udp,upt``
 
     start daemon
 
-    $ objz -d
+    $ objr -d
     $
 
     start service
 
-    $ objz -s
+    $ objr -s
 
     <runs until ctrl-c>
 
@@ -126,33 +126,33 @@ C O N F I G U R A T I O N
 
     irc
 
-    $ objz cfg server=<server>
-    $ objz cfg channel=<channel>
-    $ objz cfg nick=<nick>
+    $ objr cfg server=<server>
+    $ objr cfg channel=<channel>
+    $ objr cfg nick=<nick>
 
     sasl
 
-    $ objz pwd <nsnick> <nspass>
-    $ objz cfg password=<frompwd>
+    $ objr pwd <nsnick> <nspass>
+    $ objr cfg password=<frompwd>
 
     rss
 
-    $ objz rss <url>
-    $ objz dpl <url> <item1,item2>
-    $ objz rem <url>
-    $ objz nme <url> <name>
+    $ objr rss <url>
+    $ objr dpl <url> <item1,item2>
+    $ objr rem <url>
+    $ objr nme <url> <name>
 
     opml
 
-    $ objz exp
-    $ objz imp <filename>
+    $ objr exp
+    $ objr imp <filename>
 
 
 P R O G R A M M I N G
 
 
-    objz has it's modules in the ~/.tob/mods directory so for a hello world
-    command you would  edit a file in ~/.objz/mods/hello.py and add the
+    objr has it's modules in the ~/.tob/mods directory so for a hello world
+    command you would  edit a file in ~/.objr/mods/hello.py and add the
     following
 
 
@@ -163,7 +163,7 @@ P R O G R A M M I N G
     typing the hello command would result into a nice hello world !!
 
 
-    $ objz hello
+    $ objr hello
     hello world !!
 
 
@@ -175,9 +175,9 @@ P R O G R A M M I N G
 F I L E S
 
 
-    ~/.objz
-    ~/.local/bin/objz
-    ~/.local/pipx/venvs/objz/*
+    ~/.objr
+    ~/.local/bin/objr
+    ~/.local/pipx/venvs/objr/*
 
 
 A U T H O R
