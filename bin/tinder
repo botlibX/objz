@@ -5,6 +5,7 @@
 "objects"
 
 
+import inspect
 import os
 import shutil
 import sys
@@ -15,14 +16,17 @@ import time
 sys.path.insert(0, os.getcwd())
 
 
-from objz.command import Config, Event, command, parse, scanner
-from objz.methods import name
-from objz.package import Mods
+from objz.clients import Client
+from objz.command import Config, Mods, command, parse, scanner
+from objz.handler import Event
+from objz.threads import launch, name
 from objz.persist import Workdir
-from objz.utility import elapsed
+from objz.utility import elapsed, parse
 
 
-Mods.dir("mods", "mods")
+
+path = inspect.getfile(Config)
+Mods.dirs["objx.modules"] = os.path.join(os.path.dirname(path), "modules")
 Workdir.wdr = ".test"
 
 
@@ -36,24 +40,26 @@ examples = {
 }
 
 
-class Event(Event):
 
-    def dosay(self, txt):
-        print(txt)
+class CLI(Client):
+
+    def __init__(self):
+        Client.__init__(self)
+        self.register("command", command)
+
+    def raw(self, txt):
+        if "v" in Config.opts:
+            print(txt)
 
 
-def launch(func, *args, **kwargs):
-    thread = threading.Thread(None, func, name(func), tuple(args), dict(kwargs), daemon=True)
-    thread.start()
-    return thread
-
-
-def payload():
+def payload(clt):
     for cmd, example in examples.items():
         for ex in example:
             evt = Event()
+            evt.orig = repr(clt)
             evt.txt = f"{cmd} {ex}"
-            command(evt)
+            evt.type = "command"
+            clt.put(evt)
             events.append(evt)
 
 
@@ -62,11 +68,13 @@ def main():
     nr = Config.index or 100
     if os.path.exists(Workdir.wdr):
         shutil.rmtree(Workdir.wdr)
+    clt = CLI()
+    clt.start()
     scanner()
     starttime = time.time()
     thrs = []
     for _x in range(nr):
-        thrs.append(launch(payload))
+        thrs.append(launch(payload, clt))
     for thr in thrs:
         thr.join()
     gotcha = []
