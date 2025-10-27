@@ -22,7 +22,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import quote_plus, urlencode
 
 
-from objr.handler import Fleet
+from objr.brokers import Fleet
 from objz.objects import Object, fmt, update
 from objz.persist import find, fntime, getpath, last, write
 from objz.repeats import Repeater, elapsed, spl

@@ -10,7 +10,8 @@ import logging
 import time
 
 
-from objr.handler import Event, Fleet
+from objr.brokers import Fleet
+from objr.handler import Event
 from objz.objects import Object, construct, keys
 from objz.repeats import STARTTIME, Repeater, elapsed
 

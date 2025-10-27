@@ -16,12 +16,13 @@ import time
 sys.path.insert(0, os.getcwd())
 
 
-from objr.handler import Client, Event
-from objr.command import Config, Mods, command, parse, scanner
+from objr.clients import Client
+from objr.handler import Event
+from objr.command import Config, command, parse, scanner
+from objr.package import Mods
 from objz.persist import Workdir
 from objz.threads import launch, name
 from objz.repeats import elapsed
-
 
 
 path = inspect.getfile(Config)
@@ -166,5 +167,26 @@ def main():
     sys.exit()
 
 
+def wrapped(func):
+    try:
+        func()
+    except (KeyboardInterrupt, EOFError):
+        print("")
+
+
+def wrap(func):
+    import termios
+    old = None
+    try:
+        old = termios.tcgetattr(sys.stdin.fileno())
+    except termios.error:
+        pass
+    try:
+        wrapped(func)
+    finally:
+        if old:
+            termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, old)
+
+
 if __name__ == "__main__":
-    main()
+    wrap(main)

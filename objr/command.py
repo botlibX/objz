@@ -1,21 +1,15 @@
 # This file is placed in the Public Domain.
 
 
-import importlib
-import importlib.util
+"write your own commands"
+
+
 import inspect
-import logging
 import os
-import os.path
-import sys
-import time
-import _thread
 
 
-from objr.handler import Client, Event, Fleet
-from objz.objects import fmt
-from objz.persist import Workdir, pidname
-from objz.threads import launch
+from objr.brokers import Fleet
+from objr.package import getmod, modules
 
 
 class Config:
@@ -53,110 +47,8 @@ def command(evt):
     evt.ready()
 
 
-def scan(module):
-    for key, cmdz in inspect.getmembers(module, inspect.isfunction):
-        if key.startswith("cb"):
-            continue
-        if 'event' in inspect.signature(cmdz).parameters:
-            Commands.add(cmdz)
-
-
-"modules"
-
-
-class Mods:
-
-    dirs = {}
-    
-
-def getmod(name):
-    for nme, path in Mods.dirs.items():
-        mname = nme + "." +  name
-        module = sys.modules.get(mname, None)
-        if module:
-            return module
-        pth = os.path.join(path, f"{name}.py")
-        mod = importer(mname, pth)
-        if mod:
-            return mod
-
-
-def modules():
-    mods = []
-    for name, path in Mods.dirs.items():
-        if not os.path.exists(path):
-            continue
-        mods.extend([
-            x[:-3] for x in os.listdir(path)
-            if x.endswith(".py") and not x.startswith("__")
-           ])
-    return sorted(mods)
-
-
-"boot"
-
-
-def inits(names):
-    modz = []
-    for name in modules():
-        if name not in names:
-            continue
-        try:
-            module = getmod(name)
-            if module and "init" in dir(module):
-                thr = launch(module.init)
-                modz.append((module, thr))
-        except Exception as ex:
-            logging.exception(ex)
-            _thread.interrupt_main()
-    return modz
-
-
-def scanner(names=[]):
-    res = []
-    for nme in modules():
-        if names and nme not in names:
-            continue
-        module = getmod(nme)
-        if not module:
-            continue
-        scan(module)
-        res.append(module)
-    return res
-
-
-"utilitity"
-
-
-def forever():
-    while True:
-        try:
-            time.sleep(0.1)
-        except (KeyboardInterrupt, EOFError):
-            break
-
-
-def importer(name, pth):
-    if not os.path.exists(pth):
-        return
-    try:
-        spec = importlib.util.spec_from_file_location(name, pth)
-        if not spec or not spec.loader:
-            return
-        mod = importlib.util.module_from_spec(spec)
-        if not mod:
-            return
-        sys.modules[name] = mod
-        spec.loader.exec_module(mod)
-        logging.info("load %s", pth)
-        return mod
-    except Exception as ex:
-        logging.exception(ex)
-        _thread.interrupt_main()
-
-
 def parse(obj, txt):
-    setattrs(obj, {
+    data = {
         "args": [],
         "cmd": "",
         "gets": {},
@@ -168,7 +60,9 @@ def parse(obj, txt):
         "silent": {},
         "sets": {},
         "txt": ""
-    })
+    }
+    for k, v in data.items():
+        setattr(obj, k, getattr(obj, k, v))
     args = []
     nr = -1
     for spli in txt.split():
@@ -205,21 +99,33 @@ def parse(obj, txt):
         obj.txt = obj.cmd or ""
 
 
-def setattrs(obj, data):
-    for k, v in data.items():
-        setattr(obj, k, getattr(obj, k, v))
+def scan(module):
+    for key, cmdz in inspect.getmembers(module, inspect.isfunction):
+        if key.startswith("cb"):
+            continue
+        if 'event' in inspect.signature(cmdz).parameters:
+            Commands.add(cmdz)
+
+
+def scanner(names=[]):
+    res = []
+    for nme in modules():
+        if names and nme not in names:
+            continue
+        module = getmod(nme)
+        if not module:
+            continue
+        scan(module)
+        res.append(module)
+    return res
 
 
 def __dir__():
     return (
         'Comamnds',
         'Config',
-        'Mods',
-        'forever',
-        'getmod',
-        'inits',
-        'modules',
+        'command',
         'parse',
-        'scanner',
-        'spl'
+        'scan',
+        'scanner'
     )

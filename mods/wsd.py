@@ -10,7 +10,8 @@ import logging
 from random import SystemRandom
 
 
-from objr.handler import Event, Fleet
+from objr.brokers import Fleet
+from objr.handler import Event
 from objz.repeats import Repeater
 
 
