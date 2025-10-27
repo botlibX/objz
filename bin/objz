@@ -10,9 +10,10 @@ import time
 sys.path.insert(0, os.getcwd())
 
 
-from objr.command import Commands, Config, Mods
-from objr.command import command, inits, modules, parse, scanner
-from objr.handler import Client, Event
+from objr.clients import Client
+from objr.command import Commands, Config, command, parse, scanner
+from objr.handler import Event
+from objr.package import Mods, inits, modules
 from objz.persist import Workdir, pidname
 from objz.logging import level
  

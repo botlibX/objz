@@ -12,6 +12,9 @@ import sys
 import _thread
 
 
+from objz.threads import launch
+
+
 class Mods:
 
     dirs = {}
