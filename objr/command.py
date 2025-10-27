@@ -12,7 +12,7 @@ import time
 import _thread
 
 
-from objr.handler import Client, Default, Event, Fleet
+from objr.handler import Client, Event, Fleet
 from objz.objects import fmt
 from objz.persist import Workdir, pidname
 from objz.threads import launch
@@ -164,10 +164,10 @@ def parse(obj, txt):
         "init": "",
         "opts": "",
         "otxt": txt,
-        "txt": "",
         "rest": "",
         "silent": {},
-        "sets": {}
+        "sets": {},
+        "txt": ""
     })
     args = []
     nr = -1

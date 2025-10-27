@@ -15,7 +15,7 @@ from objz.repeats import elapsed
 def fnd(event):
     skel(store())
     if not event.rest:
-        res = sorted([x.split('.')[-1].lower() for x in types(store())])
+        res = sorted([x.split('.')[-1].lower() for x in types()])
         if res:
             event.reply(",".join(res))
         else:
@@ -23,7 +23,7 @@ def fnd(event):
         return
     otype = event.args[0]
     nmr = 0
-    for fnm, obj in list(find(store(), otype, event.gets)):
+    for fnm, obj in list(find(otype, event.gets)):
         event.reply(f"{nmr} {fmt(obj)} {elapsed(time.time()-fntime(fnm))}")
         nmr += 1
     if not nmr:

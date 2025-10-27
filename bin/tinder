@@ -16,29 +16,57 @@ import time
 sys.path.insert(0, os.getcwd())
 
 
-from objz.clients import Client
-from objz.command import Config, Mods, command, parse, scanner
-from objz.handler import Event
-from objz.threads import launch, name
+from objr.handler import Client, Event
+from objr.command import Config, Mods, command, parse, scanner
 from objz.persist import Workdir
-from objz.utility import elapsed, parse
+from objz.threads import launch, name
+from objz.repeats import elapsed
 
 
 
 path = inspect.getfile(Config)
-Mods.dirs["objx.modules"] = os.path.join(os.path.dirname(path), "modules")
+Mods.dirs["mods"] = "mods"
 Workdir.wdr = ".test"
 
 
 events = []
 examples = {
     "cmd": [""],
+    "dis": [""],
     "dne": ["", "test2"],
+    "dpl": ["hnrss title,url", ""],
+    "flt": [""],
+    "fnd": ["", "log", "rss", "config", "todo"],
     "log": ["", "test"],
-    "fnd": ["", "log", "todo"],
-    "tdo": ["", "test2", "test3"]
+    "man": [""],
+    "mod": [""],
+    "mre": [""],
+    "nme": ["", "hnrss hackernews"],
+    "now": [""],
+    "pwd": ["", "bla mekker"],
+    "req": [""],
+    "res": ["", "hnrss"],
+    "srv": [""],
+    "tdo": ["", "test2", "test3"],
+    "thr": [""],
+    "upt": [""]
 }
 
+
+pre = {
+    "cfg": ["", "nick=mekker"],
+    "imp": ["", "tests/feeds.opml"],
+    "log": ["", "bla"],
+    "rss": ["","http://hnrss.org/newest"],
+    "tdo": ["", "mekker"]
+}
+
+
+post = {
+    "dne": ["", "hnrss"],
+    "exp": [""],
+    "rem": ["", "hnrss"]
+}
 
 
 class CLI(Client):
@@ -52,29 +80,74 @@ class CLI(Client):
             print(txt)
 
 
-def payload(clt):
-    for cmd, example in examples.items():
+
+class Pool:
+
+    clients = []
+    lock = threading.RLock()
+    nrcpu = 1
+    nrlast = 0
+
+    @staticmethod
+    def add(clt):
+        "add client to pool."
+        Pool.clients.append(clt)
+
+    @staticmethod
+    def init(clz, nr=None):
+        "initialize client pool."
+        Pool.nrcpu = nr or os.cpu_count()
+        for _x in range(Pool.nrcpu):
+            clt = clz()
+            clt.start()
+            Pool.add(clt)
+
+    @staticmethod
+    def put(evt):
+        "dispatch to client."
+        with Pool.lock:
+            if Pool.nrlast >= Pool.nrcpu-1:
+                Pool.nrlast = 0
+            clt = Pool.clients[Pool.nrlast]
+            clt.put(evt)
+            Pool.nrlast += 1
+
+
+def banner():
+    tme = time.ctime(time.time()).replace("  ", " ")
+    print("%s %s since %s (%s)" % (Config.name.upper(), Config.version, tme, Config.level.upper()))
+
+
+def payload(todo):
+    for cmd, example in todo.items():
         for ex in example:
             evt = Event()
-            evt.orig = repr(clt)
             evt.txt = f"{cmd} {ex}"
             evt.type = "command"
-            clt.put(evt)
+            Pool.put(evt)
             events.append(evt)
 
 
 def main():
     parse(Config, " ".join(sys.argv[1:]))
-    nr = Config.index or 100
+    if "v" in Config.opts:
+        banner()
+    nr = Config.index or 1
     if os.path.exists(Workdir.wdr):
         shutil.rmtree(Workdir.wdr)
-    clt = CLI()
-    clt.start()
+    if "z" in Config.opts:
+        Pool.init(CLI)
+    else:
+        Pool.init(CLI, 1)
     scanner()
     starttime = time.time()
     thrs = []
     for _x in range(nr):
-        thrs.append(launch(payload, clt))
+        thrs.append(launch(payload, pre))
+    for _x in range(nr):
+        thrs.append(launch(payload, examples))
+    for _x in range(nr):
+        thrs.append(launch(payload, post))
     for thr in thrs:
         thr.join()
     gotcha = []
