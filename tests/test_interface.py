@@ -10,10 +10,12 @@ import sys
 import unittest
 
 
+import objz.logging
 import objz.marshal
-import objz.methods
 import objz.objects
 import objz.persist
+import objz.repeats
+import objz.threads
 
 
 from objz.objects import *
@@ -26,10 +28,12 @@ TODO = objz
 
 
 PACKAGE = [
+    'logging',
     'marshal',
-    'methods',
     'objects',
-    'persist'
+    'persist',
+    'repeats',
+    'threads'
 ]
 
 
