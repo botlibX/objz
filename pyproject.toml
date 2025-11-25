@@ -12,7 +12,7 @@ version = "102"
 authors = [
     {name = "Bart Thate", email = "bthate@dds.nl" },
 ]
-description = "objects"
+description = "object shell"
 readme = "README.rst"
 license = "Unlicense"
 classifiers=[
@@ -32,4 +32,7 @@ classifiers=[
 [tool.setuptools]
 packages=[
     'objz',
+    'objz.modules',
+    'objz.network',
+    'objz.nucleus'
 ]

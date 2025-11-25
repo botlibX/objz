@@ -11,11 +11,11 @@ from .workdir import Workdir
 class Kernel:
 
     @staticmethod
-    def configure(name, version, ignore="", local=False):
+    def configure(name, version, ignore="", local=False, network=False):
         Config.name = name
         Config.version = version
         Workdir.configure(name)
-        Mods.configure(f"{name}.modules", ignore, local)
+        Mods.configure(f"{name}.modules", ignore, local, network)
 
     @staticmethod
     def scanner(names, init=False):

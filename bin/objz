@@ -32,7 +32,8 @@ from objz.workdir import pidname
 IGNORE = ""
 LOCAL = True
 NAME = "objz" 
-VERSION = 221
+NETWORK = False
+VERSION = 110
 
 
 "clients"
@@ -98,7 +99,7 @@ def console():
     if "v" in Config.opts:
         banner(Config.name, Config.version)
     mods = []
-    if "a" in Config.opts:
+    if "a" not in Config.opts:
         mods = Mods.modules()
     else:
         mods = spl(Config.sets.get("init", ""))
@@ -156,7 +157,7 @@ def ver(event):
 
 
 def main():
-    Kernel.configure(NAME, VERSION, IGNORE, LOCAL)
+    Kernel.configure(NAME, VERSION, IGNORE, LOCAL, NETWORK)
     if check("b"):
         threading.excepthook = threadhook
     if check("c"):
@@ -170,4 +171,8 @@ def main():
 
 
 if __name__ == "__main__":
+    if check("l"):
+        LOCAL = True
+    if check("n"):
+        NETWORK = True
     main()

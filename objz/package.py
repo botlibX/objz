@@ -18,17 +18,21 @@ class Mods:
         Mods.dirs[name] = path
 
     @staticmethod
-    def configure(name=None, ignore="", local=False, mods=True):
-        if name:
-            pkg = importer(name)
-            if pkg:
-               Mods.add(name, pkg.__path__[0])
+    def configure(name, ignore="", local=False, mods=True, network=False):
+        pkg = importer(name)
+        if pkg:
+            Mods.add(name, pkg.__path__[0])
         if ignore:
             Mods.ignore = spl(ignore)
         if local:
             Mods.add("mods", "mods")
         if mods:
             Mods.add("modules", moddir())
+        if network:
+            name = f"{name}.network"
+            pkg = importer(name)
+            if pkg:
+                Mods.add(name, pkg.__path__[0]) 
 
     @staticmethod
     def get(name):
