@@ -1,86 +1,54 @@
 # This file is placed in the Public Domain.
 
 
-"persistence"
-
-
-import datetime
 import json
 import os
-import pathlib
 import threading
 import time
+
+
+from .objects import Object, fqn, items, keys, update
+from .serials import dump, load
+from .utility import cdir
+from .workdir import getpath, long, store
 
 
 lock = threading.RLock()
 
 
-from objz.marshal import dump, load
-from objz.objects import Object, deleted, fqn, search, update
-
-
-class Workdir:
-
-    wdr = ""
-
-
 class Cache:
 
-    objs = {}
+    objs = Object()
 
     @staticmethod
     def add(path, obj):
-        Cache.objs[path] = obj
+        setattr(Cache.objs, path, obj)
 
     @staticmethod
     def get(path):
-        return Cache.objs.get(path, None)
+        return getattr(Cache.objs, path, None)
 
     @staticmethod
-    def update(path, obj):
-        if path in Cache.objs:
-            update(Cache.objs[path], obj)
-        else:
-            Cache.add(path, obj)
+    def sync(path, obj):
+        setattr(Cache.objs, path, obj)
 
 
-def cdir(path):
-    pth = pathlib.Path(path)
-    pth.parent.mkdir(parents=True, exist_ok=True)
+def attrs(kind):
+    objs = list(find(kind))
+    if objs:
+        return keys(objs[0][1])
+    return []
 
 
-def getpath(obj):
-    return store(ident(obj))
+def deleted(obj):
+    return "__deleted__" in dir(obj) and obj.__deleted__
 
 
-def pidname(name):
-    assert Workdir.wdr
-    return os.path.join(Workdir.wdr, f"{name}.pid")
-
-
-def skel(path):
-    pth = pathlib.Path(path)
-    pth.mkdir(parents=True, exist_ok=True)
-    return str(pth)
-
-
-def store(fnm=""):
-    return os.path.join(Workdir.wdr, "store", fnm)
-
-
-def types():
-    path = store()
-    skel(path)
-    return os.listdir(path)
-
-
-"find"
-
-
-def find(type=None, selector=None, removed=False, matching=False):
+def find(kind=None, selector=None, removed=False, matching=False):
     if selector is None:
         selector = {}
-    for pth in fns(type):
+    fullname = long(kind)
+    for pth in fns(fullname):
         obj = Cache.get(pth)
         if not obj:
             obj = Object()
@@ -93,16 +61,16 @@ def find(type=None, selector=None, removed=False, matching=False):
         yield pth, obj
 
 
-def fns(type=None):
-    if type is not None:
-        type = type.lower()
+def fns(kind=None):
+    if kind is not None:
+        kind = kind.lower()
     path = store()
     for rootdir, dirs, _files in os.walk(path, topdown=True):
         for dname in dirs:
             if dname.count("-") != 2:
                 continue
             ddd = os.path.join(rootdir, dname)
-            if type and type not in ddd.lower():
+            if kind and kind not in ddd.lower():
                 continue
             for fll in os.listdir(ddd):
                 yield os.path.join(ddd, fll)
@@ -121,7 +89,6 @@ def fntime(daystr):
     return float(timed)
 
 
-
 def last(obj, selector=None):
     if selector is None:
         selector = {}
@@ -137,9 +104,6 @@ def last(obj, selector=None):
     return res
 
 
-"disk"
-
-
 def read(obj, path):
     with lock:
         with open(path, "r", encoding="utf-8") as fpt:
@@ -150,6 +114,22 @@ def read(obj, path):
                 raise ex
 
 
+def search(obj, selector, matching=False):
+    res = False
+    for key, value in items(selector):
+        val = getattr(obj, key, None)
+        if not val:
+            continue
+        if matching and value == val:
+            res = True
+        elif str(value).lower() in str(val).lower():
+            res = True
+        else:
+            res = False
+            break
+    return res
+
+
 def write(obj, path=None):
     with lock:
         if path is None:
@@ -157,26 +137,20 @@ def write(obj, path=None):
         cdir(path)
         with open(path, "w", encoding="utf-8") as fpt:
             dump(obj, fpt, indent=4)
-        Cache.update(path, obj)
+        Cache.sync(path, obj)
         return path
-
-
-"utility"
-
-
-def ident(obj):
-    return os.path.join(fqn(obj), *str(datetime.datetime.now()).split())
 
 
 def __dir__():
     return (
         'Cache',
-        'Workdir',
-        'cdir',
+        'attrs',
+        'deleted',
         'find',
+        'fns',
         'fntime',
+        'last',
         'read',
-        'skel',
-        'types',
+        'search',
         'write'
     )

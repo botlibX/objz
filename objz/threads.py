@@ -1,20 +1,22 @@
 # This file is placed in the Public Domain.
 
 
-"run non-blocking"
-
-
 import logging
+import os
 import queue
 import threading
 import time
 import _thread
 
 
+from .methods import name
+
+
 class Thread(threading.Thread):
 
     def __init__(self, func, *args, daemon=True, **kwargs):
         super().__init__(None, self.run, None, (), daemon=daemon)
+        self.event = None
         self.name = kwargs.get("name", name(func))
         self.queue = queue.Queue()
         self.result = None
@@ -29,52 +31,47 @@ class Thread(threading.Thread):
         yield from dir(self)
 
     def join(self, timeout=None):
-        result = None
         try:
             super().join(timeout)
-            result = self.result
+            return self.result
         except (KeyboardInterrupt, EOFError):
-            _thread.interrupt_main()
-        return result
+            if self.event:
+                self.event.ready()
+            raise ex
 
     def run(self):
         func, args = self.queue.get()
+        if args and "ready" in dir(args[0]):
+            self.event = args[0]
         try:
             self.result = func(*args)
-        except (KeyboardInterrupt, EOFError):
-            _thread.interrupt_main()
         except Exception as ex:
-            logging.exception(ex)
-            _thread.interrupt_main()
+            if self.event:
+                self.event.ready()
+            raise ex
 
 
 def launch(func, *args, **kwargs):
-    thread = Thread(func, *args, **kwargs)
-    thread.start()
-    return thread
+    try:
+        thread = Thread(func, *args, **kwargs)
+        thread.start()
+        return thread
+    except (KeyboardInterrupt, EOFError):
+        os._exit(0)
 
 
-def name(obj, short=False):
-    typ = type(obj)
-    res = ""
-    if "__builtins__" in dir(typ):
-        res = obj.__name__
-    elif "__self__" in dir(obj):
-        res = f"{obj.__self__.__class__.__name__}.{obj.__name__}"
-    elif "__class__" in dir(obj) and "__name__" in dir(obj):
-        res = f"{obj.__class__.__name__}.{obj.__name__}"
-    elif "__class__" in dir(obj):
-        res =  f"{obj.__class__.__module__}.{obj.__class__.__name__}"
-    elif "__name__" in dir(obj):
-        res = f"{obj.__class__.__name__}.{obj.__name__}"
-    if short:
-        res = res.split(".")[-1]
-    return res
+def threadhook(args):
+    kind, value, trace, _thr = args
+    exc = value.with_traceback(trace)
+    if kind not in (KeyboardInterrupt, EOFError):
+        logging.exception(exc)
+    if _thr and _thr.event and "ready" in dir(_thr.event):
+        _thr.event.ready()
+    _thread.interrupt_main()
 
 
 def __dir__():
     return (
         'Thread',
-        'launch',
-        'name'
+        'launch'
    )

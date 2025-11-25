@@ -1,7 +1,12 @@
 # This file is placed in the Public Domain.
 
 
-"a clean namespace"
+import types
+
+
+class Reserved(Exception):
+
+    pass
 
 
 class Object:
@@ -19,6 +24,12 @@ class Object:
         return str(self.__dict__)
 
 
+class Default(Object):
+
+    def __getattr__(self, key):
+        return self.__dict__.get(key, "")
+
+
 def construct(obj, *args, **kwargs):
     if args:
         val = args[0]
@@ -32,32 +43,6 @@ def construct(obj, *args, **kwargs):
         update(obj, kwargs)
 
 
-def deleted(obj):
-    return "__deleted__" in dir(obj) and obj.__deleted__
-
-
-def edit(obj, setter, skip=True):
-    for key, val in items(setter):
-        if skip and val == "":
-            continue
-        try:
-            setattr(obj, key, int(val))
-            continue
-        except ValueError:
-            pass
-        try:
-            setattr(obj, key, float(val))
-            continue
-        except ValueError:
-            pass
-        if val in ["True", "true"]:
-            setattr(obj, key, True)
-        elif val in ["False", "false"]:
-            setattr(obj, key, False)
-        else:
-            setattr(obj, key, val)
-
-
 def fqn(obj):
     kin = str(type(obj)).split()[-1][1:-2]
     if kin == "type":
@@ -65,37 +50,10 @@ def fqn(obj):
     return kin
 
 
-def fmt(obj, args=[], skip=[], plain=False, empty=False):
-    if not args:
-        args = obj.__dict__.keys()
-    txt = ""
-    for key in args:
-        if key.startswith("__"):
-            continue
-        if key in skip:
-            continue
-        value = getattr(obj, key, None)
-        if value is None:
-            continue
-        if not empty and not value:
-            continue
-        if plain:
-            txt += f"{value} "
-        elif isinstance(value, str):
-            txt += f'{key}="{value}" '
-        elif isinstance(value, (int, float, dict, bool, list)):
-            txt += f"{key}={value} "
-        else:
-            txt += f"{key}={name(value, True)} "
-    return txt.strip()
-
-
-def ident(obj):
-    return os.path.join(fqn(obj), *str(datetime.datetime.now()).split())
-
-
 def items(obj):
     if isinstance(obj, dict):
+        return obj.items()
+    if isinstance(obj, types.MappingProxyType):
         return obj.items()
     return obj.__dict__.items()
 
@@ -106,27 +64,20 @@ def keys(obj):
     return obj.__dict__.keys()
 
 
-def search(obj, selector, matching=False):
-    res = False
-    for key, value in items(selector):
-        val = getattr(obj, key, None)
-        if not val:
-            continue
-        if matching and value == val:
-            res = True
-        elif str(value).lower() in str(val).lower():
-            res = True
-        else:
-            res = False
-            break
-    return res
-
-
 def update(obj, data, empty=True):
-    for key, value in items(data):
-        if not empty and not value:
-            continue
-        setattr(obj, key, value)
+    if isinstance(obj, type):
+        for k, v in items(data):
+            if isinstance(getattr(obj, k, None), types.MethodType):
+                raise Reserved(k)
+            setattr(obj, k, v)
+    elif isinstance(obj, dict):
+        for k, v in items(data):
+            setattr(obj, k, v)
+    else:
+        for key, value in items(data):
+            if not empty and not value:
+                continue
+            setattr(obj, key, value)
 
 
 def values(obj):
@@ -137,10 +88,11 @@ def values(obj):
 
 def __dir__():
     return (
+        'Default',
         'Object',
+        'Reserved',
         'construct',
-        'deleted',
-        'edit',
+        'fqn',
         'items',
         'keys',
         'update',

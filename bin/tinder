@@ -2,11 +2,9 @@
 # This file is placed in the Public Domain.
 
 
-"objects"
-
-
-import inspect
+import logging
 import os
+import queue
 import shutil
 import sys
 import threading
@@ -16,21 +14,147 @@ import time
 sys.path.insert(0, os.getcwd())
 
 
-from objr.clients import Client
-from objr.handler import Event
-from objr.command import Config, command, parse, scanner
-from objr.package import Mods
-from objz.persist import Workdir
-from objz.threads import launch, name
-from objz.repeats import elapsed
+from objz.clients import Client
+from objz.command import Commands, command
+from objz.configs import Config
+from objz.kernels import Kernel
+from objz.message import Message
+from objz.methods import parse
+from objz.outputs import Output
+from objz.package import Mods
+from objz.threads import launch, threadhook
+from objz.utility import elapsed
+from objz.workdir import Workdir
 
 
-path = inspect.getfile(Config)
-Mods.dirs["mods"] = "mods"
+NAME = "objz"
+VERSION = 221
+
+
+Kernel.configure(NAME, VERSION, "", True)
 Workdir.wdr = ".test"
 
 
-events = []
+events = queue.Queue()
+#threading.excepthook = threadhook
+
+
+class CLI(Output):
+
+    def __init__(self):
+        Output.__init__(self)
+        self.register("command", command)
+
+    def raw(self, txt):
+        if "v" in Config.opts:
+            print(txt)
+
+
+class Pool:
+
+    clients: list[Client] = []
+    lock = threading.RLock()
+    nrcpu = 1
+    nrlast = 0
+
+    @staticmethod
+    def add(client):
+        Pool.clients.append(client)
+
+    @staticmethod
+    def init(clz, nr):
+        Pool.nrcpu = nr
+        for _x in range(Pool.nrcpu):
+            clt = clz()
+            clt.start()
+            Pool.add(clt)
+
+    @staticmethod
+    def put(event):
+        with Pool.lock:
+            if Pool.nrlast >= Pool.nrcpu-1:
+                Pool.nrlast = 0
+            clt = Pool.clients[Pool.nrlast]
+            clt.put(event)
+            Pool.nrlast += 1
+
+
+def banner(name, version):
+    tme = time.ctime(time.time()).replace("  ", " ")
+    logger = logging.getLogger()
+    print("%s %s since %s (%s)" % (
+                                   name.upper(),
+                                   version,
+                                   tme,
+                                   logging.getLevelName(logger.getEffectiveLevel())
+                                  ))
+    sys.stdout.flush()
+
+
+def consume():
+    while True:
+        try:
+            event = events.get()
+            event.wait()
+            events.task_done()
+        except (KeyboardInterrupt, EOFError):
+            os._exit(0)
+
+
+def payload(todo):
+    for cmd, example in todo.items():
+        for ex in example:
+            evt = Message()
+            evt.text = f"{cmd} {ex}"
+            evt.kind = "command"
+            Pool.put(evt)
+            events.put(evt)
+
+
+def main():
+    if os.path.exists(Workdir.wdr):
+        shutil.rmtree(Workdir.wdr)
+    parse(Config, " ".join(sys.argv[1:]))
+    if "b" in Config.opts:
+        threading.excepthook = threadhook
+    if "v" in Config.opts:
+        banner(Config.name, Config.version)
+    Kernel.scanner(Mods.modules())
+    if "z" in Config.opts:
+        Pool.init(CLI, os.cpu_count())
+    else:
+        Pool.init(CLI, 1)
+    starttime = time.time()
+    thrs = []
+    NRS = Config.index or 1
+    for _x in range(NRS):
+        thrs.append(launch(payload, pre))
+    for thr in thrs:
+        thr.join()
+    for _x in range(NRS):
+        thrs.append(launch(payload, examples))
+    for thr in thrs:
+        thr.join()
+    for _x in range(NRS):
+        thrs.append(launch(payload, post))
+    for thr in thrs:
+        thr.join()
+    launch(consume)
+    nrevents = events.qsize()
+    try:
+        events.join()
+    except (KeyboardInterrupt, EOFError):
+        os._exit(0)
+    endtime = time.time()
+    lap = elapsed(endtime-starttime)
+    percall = (endtime-starttime)/nrevents
+    nrs = events.qsize()
+    if "v" in Config.opts:
+        print(f"{nrs} events left.")
+        print(f"total: {lap} nrs: {nrevents} call: %.6fs" % percall)
+    os._exit(0)
+
+
 examples = {
     "cmd": [""],
     "dis": [""],
@@ -56,7 +180,7 @@ examples = {
 
 pre = {
     "cfg": ["", "nick=mekker"],
-    "imp": ["", "tests/feeds.opml"],
+    "imp": ["", "testing/feeds.opml"],
     "log": ["", "bla"],
     "rss": ["","http://hnrss.org/newest"],
     "tdo": ["", "mekker"]
@@ -70,123 +194,5 @@ post = {
 }
 
 
-class CLI(Client):
-
-    def __init__(self):
-        Client.__init__(self)
-        self.register("command", command)
-
-    def raw(self, txt):
-        if "v" in Config.opts:
-            print(txt)
-
-
-
-class Pool:
-
-    clients = []
-    lock = threading.RLock()
-    nrcpu = 1
-    nrlast = 0
-
-    @staticmethod
-    def add(clt):
-        "add client to pool."
-        Pool.clients.append(clt)
-
-    @staticmethod
-    def init(clz, nr=None):
-        "initialize client pool."
-        Pool.nrcpu = nr or os.cpu_count()
-        for _x in range(Pool.nrcpu):
-            clt = clz()
-            clt.start()
-            Pool.add(clt)
-
-    @staticmethod
-    def put(evt):
-        "dispatch to client."
-        with Pool.lock:
-            if Pool.nrlast >= Pool.nrcpu-1:
-                Pool.nrlast = 0
-            clt = Pool.clients[Pool.nrlast]
-            clt.put(evt)
-            Pool.nrlast += 1
-
-
-def banner():
-    tme = time.ctime(time.time()).replace("  ", " ")
-    print("%s %s since %s (%s)" % (Config.name.upper(), Config.version, tme, Config.level.upper()))
-
-
-def payload(todo):
-    for cmd, example in todo.items():
-        for ex in example:
-            evt = Event()
-            evt.txt = f"{cmd} {ex}"
-            evt.type = "command"
-            Pool.put(evt)
-            events.append(evt)
-
-
-def main():
-    parse(Config, " ".join(sys.argv[1:]))
-    if "v" in Config.opts:
-        banner()
-    nr = Config.index or 1
-    if os.path.exists(Workdir.wdr):
-        shutil.rmtree(Workdir.wdr)
-    if "z" in Config.opts:
-        Pool.init(CLI)
-    else:
-        Pool.init(CLI, 1)
-    scanner()
-    starttime = time.time()
-    thrs = []
-    for _x in range(nr):
-        thrs.append(launch(payload, pre))
-    for _x in range(nr):
-        thrs.append(launch(payload, examples))
-    for _x in range(nr):
-        thrs.append(launch(payload, post))
-    for thr in thrs:
-        thr.join()
-    gotcha = []
-    for evt in events:
-        evt.wait()
-        gotcha.append(evt)
-    nrevents = len(events)
-    for evt in gotcha:
-        events.remove(evt)
-    endtime = time.time()
-    lap = elapsed(endtime-starttime)
-    percall = (endtime-starttime)/nrevents
-    if "v" in Config.opts:
-        print(f"{len(events)} events left.")
-        print(f"total: {lap} nrs: {nr} call: %.6fs" % percall)
-    sys.exit()
-
-
-def wrapped(func):
-    try:
-        func()
-    except (KeyboardInterrupt, EOFError):
-        print("")
-
-
-def wrap(func):
-    import termios
-    old = None
-    try:
-        old = termios.tcgetattr(sys.stdin.fileno())
-    except termios.error:
-        pass
-    try:
-        wrapped(func)
-    finally:
-        if old:
-            termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, old)
-
-
 if __name__ == "__main__":
-    wrap(main)
+    main()
