@@ -6,34 +6,44 @@
 
 
 import logging
+import os
 import sys
 import unittest
 
 
-import objz.logging
-import objz.marshal
+sys.path.insert(0, os.getcwd())
+
+
+import objz
+import objz.brokers
+import objz.command
+import objz.handler
+import objz.kernels
+import objz.message
+import objz.methods
 import objz.objects
+import objz.package
 import objz.persist
 import objz.repeats
 import objz.threads
+import objz.utility
 
 
 from objz.objects import *
 
 
-import objz
-
-
-TODO = objz
-
-
 PACKAGE = [
-    'logging',
-    'marshal',
+    'brokers',
+    'command',
+    'handler',
+    'message',
+    'methods',
     'objects',
+    'package',
     'persist',
     'repeats',
-    'threads'
+    'threads',
+    'utility'
 ]
 
 
@@ -70,18 +80,17 @@ METHODS = [
 
 
 class TestInterface(unittest.TestCase):
-
     def test_package(self):
         okd = True
         for mod in PACKAGE:
-            mod1 = getattr(TODO, mod, None)
+            mod1 = getattr(objz, mod, None)
             if not mod1:
                 okd = False
                 print(mod)
                 break
         self.assertTrue(okd)
 
-    def test_objz(self):
+    def test_objects(self):
         okd = True
         obj = Object()
         dirr = dir(obj)

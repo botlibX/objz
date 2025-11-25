@@ -1,7 +1,7 @@
 # This file is placed in the Public Domain.
 
 
-"objz"
+"objects"
 
 
 import unittest
@@ -30,10 +30,8 @@ class Mixin(Mix, Object):
 attrs1 = (
     "Object",
     "construct",
-    "dumps",
     "items",
     "keys",
-    "loads",
     "update",
     "values"
 )
