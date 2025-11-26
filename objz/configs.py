@@ -6,7 +6,11 @@ from .objects import Default
 
 class Config(Default):
 
+    ignore = ""
+    local = False
+    mods = False
     name = ""
+    network = False
     version = 0
 
 

@@ -1,21 +1,30 @@
 # This file is placed in the Public Domain.
 
 
+import os
+import sys
+
+
 from .command import Commands
 from .configs import Config
+from .loggers import level
+from .methods import parse
 from .package import Mods
 from .threads import launch
-from .workdir import Workdir
+from .workdir import Workdir, moddir, skel
+from .utility import importer, spl
 
 
 class Kernel:
 
     @staticmethod
-    def configure(name, version, ignore="", local=False, network=False):
-        Config.name = name
-        Config.version = version
-        Workdir.configure(name)
-        Mods.configure(f"{name}.modules", ignore, local, network)
+    def configure():
+        parse(Config, " ".join(sys.argv[1:]))
+        level(Config.sets.get("level", "info"))
+        Workdir.configure(Config.name)
+        if "n" not in Config.opts:
+            Mods.ignore = Config.ignore
+        Mods.configure()
 
     @staticmethod
     def scanner(names, init=False):

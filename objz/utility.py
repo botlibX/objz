@@ -9,20 +9,7 @@ import sys
 import time
 
 
-from .defines import LEVELS, TIMES
-
-
-class Logging:
-
-    datefmt = "%H:%M:%S"
-    format = "%(module).3s %(message)s"
-
-
-class Format(logging.Formatter):
-
-    def format(self, record):
-        record.module = record.module.upper()
-        return logging.Formatter.format(self, record)
+from .statics import TIMES
 
 
 def cdir(path):
@@ -147,21 +134,6 @@ def md5sum(path):
         return hashlib.md5(txt, usedforsecurity=False).hexdigest()
 
 
-def level(loglevel="debug"):
-    if loglevel != "none":
-        lvl = LEVELS.get(loglevel)
-        if not lvl:
-            return
-        logger = logging.getLogger()
-        for handler in logger.handlers:
-            logger.removeHandler(handler)
-        logger.setLevel(lvl)
-        formatter = Format(Logging.format, datefmt=Logging.datefmt)
-        ch = logging.StreamHandler()
-        ch.setFormatter(formatter)
-        logger.addHandler(ch)
-
-
 def pidfile(filename):
     if os.path.exists(filename):
         os.unlink(filename)
@@ -215,7 +187,6 @@ def wrapped(func):
 
 def __dir__():
     return (
-        'Logging',
         'check',
         'daemon',
         'elapsed',
@@ -223,7 +194,6 @@ def __dir__():
         'forever',
         'getmain',
         'imprter',
-        'level',
         'md5sum',
         'pidfile',
         'privileges',

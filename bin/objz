@@ -15,28 +15,21 @@ sys.path.insert(0, os.getcwd())
 from objz.command import Commands, command
 from objz.clients import Client
 from objz.configs import Config
-from objz.defines import SYSTEMD
 from objz.kernels import Kernel
+from objz.loggers import level
 from objz.message import Message
 from objz.methods import parse
 from objz.package import Mods
+from objz.statics import SYSTEMD
 from objz.threads import launch, threadhook
 from objz.utility import daemon, forever, pidfile, privileges, wrap
-from objz.utility import check, level, spl, wrapped
+from objz.utility import check, spl, wrapped
 from objz.workdir import pidname
 
 
-"defines"
-
-
-IGNORE = ""
-LOCAL = True
-NAME = "objz" 
-NETWORK = False
-VERSION = 110
-
-
-"clients"
+Config.ignore = "udp"
+Config.name = "objz" 
+Config.version = 110
 
 
 class CLI(Client):
@@ -64,9 +57,6 @@ class Console(CLI):
         return evt
 
 
-"in the beginning"
-
-
 def banner(name, version):
     tme = time.ctime(time.time()).replace("  ", " ")
     logger = logging.getLogger()
@@ -79,13 +69,9 @@ def banner(name, version):
     sys.stdout.flush()
 
 
-"scripts"
-
-
 def background():
     daemon(check("v"))
     privileges()
-    level("info")
     Kernel.scanner(Mods.modules(), True)
     Commands.add(cmd, ver)
     pidfile(pidname(Config.name))
@@ -94,12 +80,10 @@ def background():
 
 def console():
     import readline # noqa: F401
-    parse(Config, " ".join(sys.argv[1:]))
-    level(Config.sets.get("level", "info"))
     if "v" in Config.opts:
         banner(Config.name, Config.version)
     mods = []
-    if "a" not in Config.opts:
+    if "a" in Config.opts:
         mods = Mods.modules()
     else:
         mods = spl(Config.sets.get("init", ""))
@@ -128,15 +112,11 @@ def control():
 
 def service():
     privileges()
-    level("info")
     banner(Config.name, Config.version)
     Kernel.scanner(spl("irc,mdl,rss"), True)
     Commands.add(cmd, ver)
     pidfile(pidname(Config.name))
     forever()
-
-
-"commands"
 
 
 def cmd(event):
@@ -153,11 +133,8 @@ def ver(event):
     event.reply(f"{Config.name.upper()} {Config.version}")
 
 
-"runtime"
-
-
 def main():
-    Kernel.configure(NAME, VERSION, IGNORE, LOCAL, NETWORK)
+    Kernel.configure()
     if check("b"):
         threading.excepthook = threadhook
     if check("c"):
@@ -171,8 +148,4 @@ def main():
 
 
 if __name__ == "__main__":
-    if check("l"):
-        LOCAL = True
-    if check("n"):
-        NETWORK = True
     main()

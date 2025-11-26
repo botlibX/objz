@@ -18,19 +18,21 @@ lock = threading.RLock()
 
 class Cache:
 
-    objs = Object()
+    objects = {}
 
     @staticmethod
     def add(path, obj):
-        setattr(Cache.objs, path, obj)
+        Cache.objects[path] = obj
 
     @staticmethod
     def get(path):
-        return getattr(Cache.objs, path, None)
+        return Cache.objects.get(path, None)
 
     @staticmethod
     def sync(path, obj):
-        setattr(Cache.objs, path, obj)
+        if path not in Cache.objects:
+            return Cache.add(path, obj)
+        update(Cache.objects[path], obj)
 
 
 def attrs(kind):
@@ -44,7 +46,7 @@ def deleted(obj):
     return "__deleted__" in dir(obj) and obj.__deleted__
 
 
-def find(kind=None, selector=None, removed=False, matching=False):
+def find(kind, selector=None, removed=False, matching=False):
     if selector is None:
         selector = {}
     fullname = long(kind)
@@ -61,17 +63,13 @@ def find(kind=None, selector=None, removed=False, matching=False):
         yield pth, obj
 
 
-def fns(kind=None):
-    if kind is not None:
-        kind = kind.lower()
-    path = store()
+def fns(kind):
+    path = store(kind)
     for rootdir, dirs, _files in os.walk(path, topdown=True):
         for dname in dirs:
             if dname.count("-") != 2:
                 continue
             ddd = os.path.join(rootdir, dname)
-            if kind and kind not in ddd.lower():
-                continue
             for fll in os.listdir(ddd):
                 yield os.path.join(ddd, fll)
 

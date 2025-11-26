@@ -6,22 +6,28 @@ from .objects import Object, values
 
 class Broker:
 
-    objects = Object()
+    objects = {}
 
     @staticmethod
     def add(obj):
-        setattr(Broker.objects, repr(obj), obj)
-
-    @staticmethod
-    def get(origin):
-        return getattr(Broker.objects, origin, None)
+        Broker.objects[repr(obj)] =  obj
 
     @staticmethod
     def all(attr=None):
-        for obj in values(Broker.objects):
+        for obj in Broker.objects.values():
             if attr and attr not in dir(obj):
                 continue
             yield obj
+
+    @staticmethod
+    def display(evt):
+       bot = Broker.get(evt.orig)
+       if bot:
+           bot.display(evt)
+
+    @staticmethod
+    def get(origin):
+        return Broker.objects.get(origin, None)
 
     @staticmethod
     def like(origin):

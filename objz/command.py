@@ -11,19 +11,19 @@ from .objects import Object
 
 class Commands:
 
-    cmds = Object()
-    names = Object()
+    cmds = {}
+    names = {}
 
     @staticmethod
     def add(*args):
         for func in args:
             name = func.__name__
-            setattr(Commands.cmds, name, func)
-            setattr(Commands.names, name, func.__module__.split(".")[-1])
+            Commands.cmds[name] = func
+            Commands.names[name] = func.__module__.split(".")[-1]
 
     @staticmethod
     def get(cmd):
-        return getattr(Commands.cmds, cmd, None)
+        return Commands.cmds.get(cmd, None)
 
     @staticmethod
     def scan(module):
@@ -39,8 +39,7 @@ def command(evt):
     func = Commands.get(evt.cmd)
     if func:
         func(evt)
-        bot = Broker.get(evt.orig)
-        bot.display(evt)
+        Broker.display(evt)
     evt.ready()
 
 

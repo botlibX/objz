@@ -12,14 +12,14 @@ import time
 
 
 from objz.brokers import Broker
+from objz.clients import Output
 from objz.command import command
 from objz.configs import Config as Main
-from objz.defines import LEVELS
 from objz.message import Message
 from objz.methods import edit, fmt
 from objz.objects import Object, keys
-from objz.outputs import Output
 from objz.persist import last, write
+from objz.statics import LEVELS
 from objz.threads import launch
 from objz.workdir import getpath
 
@@ -197,8 +197,8 @@ class IRC(Output):
             pass
 
     def display(self, event):
-        for key in sorted(event.result, key=lambda x: x):
-            txt = event.result.get(key)
+        for key in sorted(event._result):
+            txt = event._result.get(key)
             if not txt:
                 continue
             textlist = []

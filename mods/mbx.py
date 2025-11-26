@@ -6,10 +6,10 @@ import os
 import time
 
 
-from objz.defines import MONTH
 from objz.methods import fmt
 from objz.objects import Object, keys, update
 from objz.persist import find, write
+from objz.statics import MONTH
 from objz.utility import elapsed, extract_date
 
 

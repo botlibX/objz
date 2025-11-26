@@ -14,29 +14,27 @@ import time
 sys.path.insert(0, os.getcwd())
 
 
-from objz.clients import Client
+from objz.clients import Client, Output
 from objz.command import Commands, command
 from objz.configs import Config
 from objz.kernels import Kernel
 from objz.message import Message
 from objz.methods import parse
-from objz.outputs import Output
 from objz.package import Mods
 from objz.threads import launch, threadhook
 from objz.utility import elapsed
 from objz.workdir import Workdir
 
 
-NAME = "objz"
-VERSION = 221
+Config.name = "objz"
+Config.version = 110
 
 
-Kernel.configure(NAME, VERSION, "", True)
+Kernel.configure()
 Workdir.wdr = ".test"
 
 
 events = queue.Queue()
-#threading.excepthook = threadhook
 
 
 class CLI(Output):

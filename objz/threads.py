@@ -34,7 +34,7 @@ class Thread(threading.Thread):
         try:
             super().join(timeout)
             return self.result
-        except (KeyboardInterrupt, EOFError):
+        except (KeyboardInterrupt, EOFError) as ex:
             if self.event:
                 self.event.ready()
             raise ex

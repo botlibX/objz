@@ -9,10 +9,10 @@ import time
 
 
 from objz.brokers import Broker
-from objz.defines import MONTH
 from objz.objects import Object, items
 from objz.persist import last, write
 from objz.repeats import Timed
+from objz.statics import MONTH
 from objz.utility import elapsed, extract_date
 from objz.workdir import getpath
 
