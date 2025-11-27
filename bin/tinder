@@ -19,13 +19,14 @@ from objz.command import Commands, command
 from objz.configs import Config
 from objz.kernels import Kernel, scanner
 from objz.message import Message
-from objz.methods import parse
+from objz.methods import fmt, parse
 from objz.package import modules
 from objz.threads import launch, threadhook
 from objz.utility import elapsed
 from objz.workdir import Workdir
 
 
+Config.debug = True
 Config.name = "objz"
 Config.opts = "m"
 Config.version = 110
@@ -147,6 +148,7 @@ def main():
     percall = (endtime-starttime)/nrevents
     nrs = events.qsize()
     if "v" in Config.opts:
+        print(fmt(Config))
         print(f"{nrs} events left.")
         print(f"total: {lap} nrs: {nrevents} call: %.6fs" % percall)
     os._exit(0)

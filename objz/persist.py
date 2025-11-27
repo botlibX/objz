@@ -137,3 +137,19 @@ def write(obj, path=None):
             dump(obj, fpt, indent=4)
         Cache.sync(path, obj)
         return path
+
+
+def __dir__():
+    return (
+        'Cache',
+        'attrs',
+        'cdir',
+        'deleted',
+        'find',
+        'fns',
+        'fntime',
+        'last',
+        'read',
+        'search',
+        'write'
+    )

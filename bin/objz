@@ -124,6 +124,8 @@ def main():
     Kernel.configure()
     if check("b"):
         threading.excepthook = threadhook
+    if check('z'):
+        Config.debug = True
     if check("c"):
         wrap(console)
     elif check("d"):
