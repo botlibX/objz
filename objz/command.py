@@ -6,6 +6,7 @@ import inspect
 
 from .brokers import display
 from .methods import parse
+from .utility import getdir
 
 
 class Commands:
@@ -42,9 +43,4 @@ def scan(module):
             Commands.add(cmdz)
 
 
-def __dir__():
-    return (
-        'Comamnds',
-        'command',
-        'scan'
-    )
+__dir__ = getdir('Comamnds', 'command', 'scan')

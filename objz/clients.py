@@ -10,6 +10,7 @@ import _thread
 from .brokers import Broker
 from .handler import Handler
 from .threads import launch
+from .utility import getdir
 
 
 class Client(Handler):
@@ -70,9 +71,4 @@ class Output(Client):
         super().stop()
 
 
-
-def __dir__():
-    return (
-        'Client',
-        'Output'
-   )
+__dir__ = getdir('Client', 'Output')

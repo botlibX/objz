@@ -20,7 +20,7 @@ from objz.workdir import getpath
 rand = random.SystemRandom()
 
 
-def init(cfg):
+def init():
     Timers.path = last(Timers.timers) or getpath(Timers.timers)
     remove = []
     for tme, args in items(Timers.timers):

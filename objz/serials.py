@@ -5,6 +5,9 @@ import json
 import types
 
 
+from .utility import getdir
+
+
 class Encoder(json.JSONEncoder):
 
     def default(self, o):
@@ -41,10 +44,10 @@ def loads(s, *args, **kw):
     return json.loads(s, *args, **kw)
 
 
-def __dir__():
-    return (
-        'dump',
-        'dumps',
-        'load',
-        'loads'
-    )
+
+__dir__ = getdir(
+    'dump',
+    'dumps',
+    'load',
+    'loads'
+)

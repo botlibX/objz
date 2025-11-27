@@ -10,6 +10,7 @@ from .loggers import level
 from .methods import parse
 from .package import Mods
 from .threads import launch
+from .utility import getdir
 from .workdir import Workdir
 
 
@@ -24,21 +25,18 @@ class Kernel:
             Mods.ignore = Config.ignore
         Mods.configure()
 
-    @staticmethod
-    def scanner(names, init=False):
-        mods = []
-        for name in names:
-            mod = Mods.get(name)
-            if not mod:
-                continue
-            scan(mod)
-            if init and "init" in dir(mod):
-                thr = launch(mod.init, Config())
-                mods.append((mod, thr))
-        return mods
+
+def scanner(names, init=False):
+    mods = []
+    for name in names:
+        mod = Mods.get(name)
+        if not mod:
+            continue
+        scan(mod)
+        if init and "init" in dir(mod):
+            thr = launch(mod.init)
+            mods.append((mod, thr))
+    return mods
 
 
-def __dir__():
-    return (
-        'Kernel',
-    )
+__dir__ = getdir('Kernel', 'scanner')

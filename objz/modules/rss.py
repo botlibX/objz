@@ -32,7 +32,7 @@ from objz.workdir import getpath
 DEBUG = False
 
 
-def init(cfg):
+def init():
     fetcher = Fetcher()
     fetcher.start()
     if fetcher.seenfn:

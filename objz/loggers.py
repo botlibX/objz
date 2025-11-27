@@ -2,9 +2,12 @@
 
 
 import logging
+import time
 
 
+from .configs import Config 
 from .statics import LEVELS
+from .utility import getdir
 
 
 class Logging:
@@ -18,6 +21,17 @@ class Format(logging.Formatter):
     def format(self, record):
         record.module = record.module.upper()
         return logging.Formatter.format(self, record)
+
+
+def banner():
+    tme = time.ctime(time.time()).replace("  ", " ")
+    logger = logging.getLogger()
+    logging.warn("%s %s since %s (%s)" % (
+                                   Config.name.upper(),
+                                   Config.version,
+                                   tme,
+                                   logging.getLevelName(logger.getEffectiveLevel())
+                                  ))
 
 
 def level(loglevel="debug"):
@@ -34,8 +48,4 @@ def level(loglevel="debug"):
     logger.addHandler(ch)
 
 
-def __dir__():
-    return (
-        'Logging',
-        'level'
-   )
+__dir__ = getdir('Logging', 'banner', 'level')

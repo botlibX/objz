@@ -7,6 +7,7 @@ import pathlib
 
 
 from .objects import fqn
+from .utility import getdir
 
 
 class Workdir:
@@ -68,15 +69,14 @@ def types():
     return os.listdir(store())
 
 
-def __dir__():
-    return (
-        'Workdir',
-        'getpath',
-        'ident',
-        'long',
-        'moddir',
-        'pidname',
-        'skel',
-        'store',
-        'types'
-    )
+__dir__ = getdir(
+    'Workdir',
+    'getpath',
+    'ident',
+    'long',
+    'moddir',
+    'pidname',
+    'skel',
+    'store',
+    'types'
+)

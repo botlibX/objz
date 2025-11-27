@@ -30,7 +30,7 @@ IGNORE = ["PING", "PONG", "PRIVMSG"]
 lock = threading.RLock()
 
 
-def init(cfg):
+def init():
     irc = IRC()
     irc.start()
     irc.events.joined.wait(30.0)
@@ -46,6 +46,7 @@ class Config(Object):
     channel = f"#{Main.name}"
     commands = True
     control = "!"
+    ignore = ["PING", "PONG", "PRIVMSG"] 
     name = Main.name
     nick = Main.name
     word = ""
@@ -330,7 +331,7 @@ class IRC(Output):
         rawstr = str(txt)
         rawstr = rawstr.replace("\u0001", "")
         rawstr = rawstr.replace("\001", "")
-        rlog("debug", txt, IGNORE)
+        rlog("debug", txt, Config.ignore)
         obj = Event()
         obj.args = []
         obj.rawstr = rawstr
@@ -417,7 +418,7 @@ class IRC(Output):
 
     def raw(self, text):
         text = text.rstrip()
-        rlog("debug", text, IGNORE)
+        rlog("debug", text, Config.ignore)
         text = text[:500]
         text += "\r\n"
         text = bytes(text, "utf-8")

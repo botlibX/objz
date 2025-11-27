@@ -15,7 +15,8 @@ sys.path.insert(0, os.getcwd())
 from objz.command import Commands, command
 from objz.clients import Client
 from objz.configs import Config
-from objz.kernels import Kernel
+from objz.kernels import Kernel, scanner
+from objz.loggers import banner
 from objz.message import Message
 from objz.package import modules
 from objz.statics import SYSTEMD
@@ -40,6 +41,20 @@ class CLI(Client):
         print(text.encode('utf-8', 'replace').decode("utf-8"))
 
 
+def cmd(event):
+    event.reply(",".join(sorted(Commands.names or Commands.cmds)))
+
+
+def srv(event):
+    import getpass
+    name = getpass.getuser()
+    event.reply(SYSTEMD % (Config.name.upper(), name, name, name, Config.name))
+
+
+def ver(event):
+    event.reply(f"{Config.name.upper()} {Config.version}")
+
+
 class Console(CLI):
 
     def callback(self, event):
@@ -55,22 +70,10 @@ class Console(CLI):
         return evt
 
 
-def banner(name, version):
-    tme = time.ctime(time.time()).replace("  ", " ")
-    logger = logging.getLogger()
-    print("%s %s since %s (%s)" % (
-                                   name.upper(),
-                                   version,
-                                   tme,
-                                   logging.getLevelName(logger.getEffectiveLevel())
-                                  ))
-    sys.stdout.flush()
-
-
 def background():
     daemon(check("v"))
     privileges()
-    Kernel.scanner(modules(), True)
+    scanner(modules(), True)
     Commands.add(cmd, ver)
     pidfile(pidname(Config.name))
     forever()
@@ -79,7 +82,7 @@ def background():
 def console():
     import readline # noqa: F401
     if "v" in Config.opts:
-        banner(Config.name, Config.version)
+        banner()
     mods = []
     if "a" in Config.opts:
         mods = modules()
@@ -87,7 +90,7 @@ def console():
         mods = spl(Config.sets.get("init", ""))
     Commands.add(cmd, ver)
     csl = Console()
-    for _mod, thr in Kernel.scanner(mods, True):
+    for _mod, thr in scanner(mods, True):
         thr.join(30.0)
     csl.start()
     forever()
@@ -96,7 +99,7 @@ def console():
 def control():
     if len(sys.argv) == 1:
         return
-    Kernel.scanner(modules(), False)
+    scanner(modules(), False)
     Commands.add(cmd, srv, ver)
     csl = CLI()
     csl.silent = False
@@ -111,24 +114,10 @@ def control():
 def service():
     privileges()
     banner(Config.name, Config.version)
-    Kernel.scanner(modules(), True)
+    scanner(modules(), True)
     Commands.add(cmd, ver)
     pidfile(pidname(Config.name))
     forever()
-
-
-def cmd(event):
-    event.reply(",".join(sorted(Commands.names or Commands.cmds)))
-
-
-def srv(event):
-    import getpass
-    name = getpass.getuser()
-    event.reply(SYSTEMD % (Config.name.upper(), name, name, name, Config.name))
-
-
-def ver(event):
-    event.reply(f"{Config.name.upper()} {Config.version}")
 
 
 def main():

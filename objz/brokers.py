@@ -1,6 +1,9 @@
 # This file is placed in the Public Domain.
 
 
+from .utility import getdir
+
+
 class Broker:
 
     objects = {}
@@ -15,7 +18,6 @@ class Broker:
             if attr and attr not in dir(obj):
                 continue
             yield obj
-
 
     @staticmethod
     def get(origin):
@@ -33,8 +35,5 @@ def display(evt):
     if bot:
         bot.display(evt)
 
-def __dir__():
-    return (
-        'Broker',
-        'display'
-    )
+
+__dir__ = getdir('Broker','display')

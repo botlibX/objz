@@ -4,6 +4,9 @@
 import types
 
 
+from .utility import getdir
+
+
 class Reserved(Exception):
 
     pass
@@ -86,15 +89,13 @@ def values(obj):
     return obj.__dict__.values()
 
 
-def __dir__():
-    return (
-        'Default',
-        'Object',
-        'Reserved',
-        'construct',
-        'fqn',
-        'items',
-        'keys',
-        'update',
-        'values'
-    )
+__dir__ = getdir('Default',
+    'Object',
+    'Reserved',
+    'construct',
+    'fqn',
+    'items',
+    'keys',
+    'update',
+    'values'
+)

@@ -6,7 +6,7 @@ import sys
 
 
 from .configs import Config
-from .utility import importer, spl
+from .utility import getdir, importer, spl
 from .workdir import moddir
 
 
@@ -61,7 +61,4 @@ def modules():
     return sorted(mods)
 
 
-def __dir__():
-    return (
-        'Mods',
-    )
+__dir__ = getdir('Mods')

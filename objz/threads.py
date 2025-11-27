@@ -10,6 +10,7 @@ import _thread
 
 
 from .methods import name
+from .utility import getdir
 
 
 class Thread(threading.Thread):
@@ -70,8 +71,4 @@ def threadhook(args):
     _thread.interrupt_main()
 
 
-def __dir__():
-    return (
-        'Thread',
-        'launch'
-   )
+__dir__ = getdir('Thread', 'launch')

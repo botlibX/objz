@@ -2,6 +2,7 @@
 
 
 from .objects import fqn, items
+from .utility import getdir
 
 
 def edit(obj, setter, skip=True):
@@ -123,10 +124,4 @@ def parse(obj, text):
         obj.text = obj.cmd or ""
 
 
-def __dir__():
-    return (
-        'edit',
-        'fmt',
-        'name',
-        'parse'
-    )
+__dir__ = getdir('edit','fmt', 'name', 'parse')

@@ -6,6 +6,7 @@ import time
 
 
 from .objects import Default
+from .utility import getdir
 
 
 class Message(Default):
@@ -28,7 +29,4 @@ class Message(Default):
             self._thr.join(timeout)
 
 
-def __dir__():
-    return (
-        'Message',
-   )
+__dir__ = getdir('Message')

@@ -8,7 +8,7 @@ import sys
 import time
 
 
-from .statics import TIMES
+from .statics import BASIC, TIMES
 
 
 def cdir(path):
@@ -104,6 +104,12 @@ def forever():
             time.sleep(0.1)
         except (KeyboardInterrupt, EOFError):
             break
+
+
+def getdir(*args):
+    def ddir():
+         return tuple(list(BASIC) + list(args))
+    return ddir
 
 
 def getmain(name):

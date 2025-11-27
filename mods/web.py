@@ -10,6 +10,7 @@ import time
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 
+from objz.configs import Config
 from objz.objects import Object
 from objz.threads import launch
 from objz.utility import importer
@@ -19,8 +20,8 @@ DEBUG = False
 PATH = ""
 
 
-def init(cfg):
-    mod = importer(f"{cfg.name}.nucleus")
+def init():
+    mod = importer(f"{Config.name}.nucleus")
     if not mod:
         logging.warning("can't find web directory")
         return

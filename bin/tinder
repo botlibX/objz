@@ -28,8 +28,6 @@ from objz.workdir import Workdir
 
 Config.name = "objz"
 Config.version = 110
-
-
 Kernel.configure()
 Workdir.wdr = ".test"
 

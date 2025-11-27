@@ -9,7 +9,7 @@ import time
 
 from .objects import Object, fqn, items, keys, update
 from .serials import dump, load
-from .utility import cdir
+from .utility import cdir, getdir
 from .workdir import getpath, long, store
 
 
@@ -139,16 +139,15 @@ def write(obj, path=None):
         return path
 
 
-def __dir__():
-    return (
-        'Cache',
-        'attrs',
-        'deleted',
-        'find',
-        'fns',
-        'fntime',
-        'last',
-        'read',
-        'search',
-        'write'
-    )
+__dir__ = getdir(
+    'Cache',
+    'attrs',
+    'deleted',
+    'find',
+    'fns',
+    'fntime',
+    'last',
+    'read',
+    'search',
+    'write'
+)

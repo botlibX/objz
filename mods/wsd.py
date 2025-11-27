@@ -15,7 +15,7 @@ from objz.repeats import Repeater
 rand = SystemRandom()
 
 
-def init(cfg):
+def init():
     event = Message()
     repeater = Repeater(3600.0,  wsd, event)
     repeater.start()

@@ -2,6 +2,7 @@
 
 
 from .objects import Default
+from .utility import getdir
 
 
 class Config(Default):
@@ -14,7 +15,4 @@ class Config(Default):
     version = 0
 
 
-def __dir__():
-    return (
-        'Config',
-    )
+__dir__ = getdir('Config')
