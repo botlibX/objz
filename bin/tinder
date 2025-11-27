@@ -20,7 +20,7 @@ from objz.configs import Config
 from objz.kernels import Kernel
 from objz.message import Message
 from objz.methods import parse
-from objz.package import Mods
+from objz.package import modules
 from objz.threads import launch, threadhook
 from objz.utility import elapsed
 from objz.workdir import Workdir
@@ -117,7 +117,7 @@ def main():
         threading.excepthook = threadhook
     if "v" in Config.opts:
         banner(Config.name, Config.version)
-    Kernel.scanner(Mods.modules())
+    Kernel.scanner(modules())
     if "z" in Config.opts:
         Pool.init(CLI, os.cpu_count())
     else:
