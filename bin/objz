@@ -25,6 +25,7 @@ from objz.utility import check, spl, wrapped
 from objz.workdir import pidname
 
 
+Config.ignore = "udp"
 Config.name = "objz" 
 Config.version = 110
 
