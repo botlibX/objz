@@ -1,8 +1,6 @@
 # This file is placed in the Public Domain.
 
 
-
-
 class Broker:
 
     objects = {}
@@ -18,11 +16,6 @@ class Broker:
                 continue
             yield obj
 
-    @staticmethod
-    def display(evt):
-       bot = Broker.get(evt.orig)
-       if bot:
-           bot.display(evt)
 
     @staticmethod
     def get(origin):
@@ -35,7 +28,13 @@ class Broker:
                 yield orig
 
 
+def display(evt):
+    bot = Broker.get(evt.orig)
+    if bot:
+        bot.display(evt)
+
 def __dir__():
     return (
         'Broker',
+        'display'
     )

@@ -26,6 +26,9 @@ class Mods:
         name = Mods.package + ".modules" 
         Mods.add(name, os.path.join(Mods.path, "modules"))
         Mods.add("modules", moddir())
+        if "n" in Config.opts:
+            name = Mods.package + ".network" 
+            Mods.add(name, os.path.join(Mods.path, "network"))
         if "m" in Config.opts:
             Mods.add("mods", "mods")
 
@@ -43,22 +46,22 @@ class Mods:
                 break
         return sys.modules.get(mname, None) or importer(mname, pth)
 
-    @staticmethod
-    def modules():
-        mods = []
-        for name, path in Mods.dirs.items():
-            if name in spl(Mods.ignore):
-                continue
-            if not os.path.exists(path):
-                continue
-            mods.extend([
-                x[:-3] for x in os.listdir(path)
-                if x.endswith(".py") and not x.startswith("__") and x not in spl(Mods.ignore)
-            ])
-        return sorted(mods)
+
+def modules():
+    mods = []
+    for name, path in Mods.dirs.items():
+        if name in spl(Mods.ignore):
+            continue
+        if not os.path.exists(path):
+            continue
+        mods.extend([
+            x[:-3] for x in os.listdir(path)
+            if x.endswith(".py") and not x.startswith("__") and x not in spl(Mods.ignore)
+        ])
+    return sorted(mods)
 
 
-#def __dir__():
-#    return (
-#        'Mods',
-#    )
+def __dir__():
+    return (
+        'Mods',
+    )

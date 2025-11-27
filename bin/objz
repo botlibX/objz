@@ -17,7 +17,7 @@ from objz.clients import Client
 from objz.configs import Config
 from objz.kernels import Kernel
 from objz.message import Message
-from objz.package import Mods
+from objz.package import modules
 from objz.statics import SYSTEMD
 from objz.threads import threadhook
 from objz.utility import daemon, forever, pidfile, privileges, wrap
@@ -25,7 +25,6 @@ from objz.utility import check, spl, wrapped
 from objz.workdir import pidname
 
 
-Config.ignore = "udp"
 Config.name = "objz" 
 Config.version = 110
 
@@ -70,7 +69,7 @@ def banner(name, version):
 def background():
     daemon(check("v"))
     privileges()
-    Kernel.scanner(Mods.modules(), True)
+    Kernel.scanner(modules(), True)
     Commands.add(cmd, ver)
     pidfile(pidname(Config.name))
     forever()
@@ -82,7 +81,7 @@ def console():
         banner(Config.name, Config.version)
     mods = []
     if "a" in Config.opts:
-        mods = Mods.modules()
+        mods = modules()
     else:
         mods = spl(Config.sets.get("init", ""))
     Commands.add(cmd, ver)
@@ -96,7 +95,7 @@ def console():
 def control():
     if len(sys.argv) == 1:
         return
-    Kernel.scanner(Mods.modules(), False)
+    Kernel.scanner(modules(), False)
     Commands.add(cmd, srv, ver)
     csl = CLI()
     csl.silent = False
@@ -111,7 +110,7 @@ def control():
 def service():
     privileges()
     banner(Config.name, Config.version)
-    Kernel.scanner(spl("irc,mdl,rss"), True)
+    Kernel.scanner(modules(), True)
     Commands.add(cmd, ver)
     pidfile(pidname(Config.name))
     forever()

@@ -4,7 +4,7 @@
 import sys
 
 
-from .command import Commands
+from .command import scan
 from .configs import Config
 from .loggers import level
 from .methods import parse
@@ -31,7 +31,7 @@ class Kernel:
             mod = Mods.get(name)
             if not mod:
                 continue
-            Commands.scan(mod)
+            scan(mod)
             if init and "init" in dir(mod):
                 thr = launch(mod.init, Config())
                 mods.append((mod, thr))

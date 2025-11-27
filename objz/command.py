@@ -4,7 +4,7 @@
 import inspect
 
 
-from .brokers import Broker
+from .brokers import display
 from .methods import parse
 
 
@@ -24,26 +24,27 @@ class Commands:
     def get(cmd):
         return Commands.cmds.get(cmd, None)
 
-    @staticmethod
-    def scan(module):
-        for key, cmdz in inspect.getmembers(module, inspect.isfunction):
-            if key.startswith("cb"):
-                continue
-            if 'event' in inspect.signature(cmdz).parameters:
-                Commands.add(cmdz)
-
 
 def command(evt):
     parse(evt, evt.text)
     func = Commands.get(evt.cmd)
     if func:
         func(evt)
-        Broker.display(evt)
+        display(evt)
     evt.ready()
+
+
+def scan(module):
+    for key, cmdz in inspect.getmembers(module, inspect.isfunction):
+        if key.startswith("cb"):
+            continue
+        if 'event' in inspect.signature(cmdz).parameters:
+            Commands.add(cmdz)
 
 
 def __dir__():
     return (
         'Comamnds',
-        'command'
+        'command',
+        'scan'
     )
