@@ -6,7 +6,6 @@ import inspect
 
 from .brokers import Broker
 from .methods import parse
-from .objects import Object
 
 
 class Commands:

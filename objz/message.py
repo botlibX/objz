@@ -3,10 +3,9 @@
 
 import threading
 import time
-import _thread
 
 
-from .objects import Default, Object
+from .objects import Default
 
 
 class Message(Default):

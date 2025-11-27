@@ -1,7 +1,6 @@
 # This file is placed in the Public Domain.
 
 
-from .objects import Object, values
 
 
 class Broker:

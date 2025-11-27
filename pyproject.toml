@@ -23,6 +23,10 @@ classifiers=[
 ]
 
 
+[project.scripts]
+"objz" = "objz.nucleus.__main__:main"
+
+
 [project.urls]
 "home" = "https://pypi.org/project/objz"
 "bugs" = "https://github.com/botlibX/objz/issues"

@@ -1,7 +1,6 @@
 # This file is placed in the Public Domain.
 
 
-import os
 import sys
 
 
@@ -11,8 +10,7 @@ from .loggers import level
 from .methods import parse
 from .package import Mods
 from .threads import launch
-from .workdir import Workdir, moddir, skel
-from .utility import importer, spl
+from .workdir import Workdir
 
 
 class Kernel:
