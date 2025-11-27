@@ -22,6 +22,12 @@ Workdir.wdr = '.test'
 
 ATTRS1 = (
     'Cache',
+    '__doc__',
+    '__file__',
+    '__loader__',
+    '__name__',
+    '__package__',
+    '__spec__',
     'attrs',
     'deleted',
     'find',
@@ -32,6 +38,7 @@ ATTRS1 = (
     'search',
     'write'
 )
+
 
 class TestStorage(unittest.TestCase):
 
