@@ -6,7 +6,7 @@ import sys
 
 
 from .configs import Config
-from .utility import getdir, importer, spl
+from .utility import importer, spl
 from .workdir import moddir
 
 
@@ -59,6 +59,3 @@ def modules():
             if x.endswith(".py") and not x.startswith("__") and x not in spl(Mods.ignore)
         ])
     return sorted(mods)
-
-
-__dir__ = getdir('Mods')

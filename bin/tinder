@@ -17,7 +17,7 @@ sys.path.insert(0, os.getcwd())
 from objz.clients import Client, Output
 from objz.command import Commands, command
 from objz.configs import Config
-from objz.kernels import Kernel
+from objz.kernels import Kernel, scanner
 from objz.message import Message
 from objz.methods import parse
 from objz.package import modules
@@ -27,6 +27,7 @@ from objz.workdir import Workdir
 
 
 Config.name = "objz"
+Config.opts = "m"
 Config.version = 110
 Kernel.configure()
 Workdir.wdr = ".test"
@@ -115,7 +116,7 @@ def main():
         threading.excepthook = threadhook
     if "v" in Config.opts:
         banner(Config.name, Config.version)
-    Kernel.scanner(modules())
+    scanner(modules())
     if "z" in Config.opts:
         Pool.init(CLI, os.cpu_count())
     else:

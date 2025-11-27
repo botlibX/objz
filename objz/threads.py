@@ -10,7 +10,6 @@ import _thread
 
 
 from .methods import name
-from .utility import getdir
 
 
 class Thread(threading.Thread):
@@ -69,6 +68,3 @@ def threadhook(args):
     if _thr and _thr.event and "ready" in dir(_thr.event):
         _thr.event.ready()
     _thread.interrupt_main()
-
-
-__dir__ = getdir('Thread', 'launch')

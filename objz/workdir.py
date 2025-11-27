@@ -7,7 +7,6 @@ import pathlib
 
 
 from .objects import fqn
-from .utility import getdir
 
 
 class Workdir:
@@ -67,16 +66,3 @@ def store(fnm=""):
 def types():
     skel()
     return os.listdir(store())
-
-
-__dir__ = getdir(
-    'Workdir',
-    'getpath',
-    'ident',
-    'long',
-    'moddir',
-    'pidname',
-    'skel',
-    'store',
-    'types'
-)

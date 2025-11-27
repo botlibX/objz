@@ -10,15 +10,13 @@ import time
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 
+from objz.configs import Config
 from objz.objects import Object
 from objz.threads import launch
 from objz.workdir import store, types
 
 
-DEBUG = False
-
-
-def init(cfg):
+def init():
     try:
         rest = REST((Config.hostname, int(Config.port)), RESTHandler)
         rest.start()
@@ -83,7 +81,7 @@ class RESTHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        if DEBUG:
+        if Config.debug:
             return
         if "favicon" in self.path:
             return

@@ -62,13 +62,3 @@ TIMES = [
     "%d-%m",
     "%m-%d"
 ]
-
-
-def __dir__():
-    return (
-        'BASIC',
-        'LEVELS',
-        'MONTH',
-        'SYSTEMD',
-        'TIMES'
-    )

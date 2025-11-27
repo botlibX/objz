@@ -1,9 +1,6 @@
 # This file is placed in the Public Domain.
 
 
-from .utility import getdir
-
-
 class Broker:
 
     objects = {}
@@ -34,6 +31,3 @@ def display(evt):
     bot = Broker.get(evt.orig)
     if bot:
         bot.display(evt)
-
-
-__dir__ = getdir('Broker','display')

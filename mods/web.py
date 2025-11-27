@@ -16,10 +16,6 @@ from objz.threads import launch
 from objz.utility import importer
 
 
-DEBUG = False
-PATH = ""
-
-
 def init():
     mod = importer(f"{Config.name}.nucleus")
     if not mod:
@@ -105,7 +101,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         if "favicon" in self.path:
             return
-        if DEBUG:
+        if Config.debug:
             return
         if self.path == "/":
             self.path = "index.html"

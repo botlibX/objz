@@ -2,17 +2,14 @@
 
 
 from .objects import Default
-from .utility import getdir
 
 
 class Config(Default):
 
+    debug = False
     ignore = ""
     local = False
     mods = False
     name = ""
     network = False
     version = 0
-
-
-__dir__ = getdir('Config')

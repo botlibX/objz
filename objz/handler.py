@@ -5,7 +5,6 @@ import queue
 
 
 from .threads import launch
-from .utility import getdir
 
 
 class Handler:
@@ -44,6 +43,3 @@ class Handler:
 
     def stop(self):
         self.queue.put(None)
-
-
-__dir__ = getdir('Handler')

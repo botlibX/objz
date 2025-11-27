@@ -10,7 +10,6 @@ from .loggers import level
 from .methods import parse
 from .package import Mods
 from .threads import launch
-from .utility import getdir
 from .workdir import Workdir
 
 
@@ -37,6 +36,3 @@ def scanner(names, init=False):
             thr = launch(mod.init)
             mods.append((mod, thr))
     return mods
-
-
-__dir__ = getdir('Kernel', 'scanner')

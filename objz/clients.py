@@ -10,7 +10,6 @@ import _thread
 from .brokers import Broker
 from .handler import Handler
 from .threads import launch
-from .utility import getdir
 
 
 class Client(Handler):
@@ -69,6 +68,3 @@ class Output(Client):
     def stop(self):
         self.oqueue.put(None)
         super().stop()
-
-
-__dir__ = getdir('Client', 'Output')

@@ -7,7 +7,6 @@ import time
 
 from .methods import name
 from .threads import launch
-from .utility import getdir
 
 
 class Timy(threading.Timer):
@@ -53,6 +52,3 @@ class Repeater(Timed):
     def run(self):
         launch(self.start)
         super().run()
-
-
-__dir__ = getdir('Repeater', 'Timed')

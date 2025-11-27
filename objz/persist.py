@@ -9,7 +9,7 @@ import time
 
 from .objects import Object, fqn, items, keys, update
 from .serials import dump, load
-from .utility import cdir, getdir
+from .utility import cdir
 from .workdir import getpath, long, store
 
 
@@ -137,17 +137,3 @@ def write(obj, path=None):
             dump(obj, fpt, indent=4)
         Cache.sync(path, obj)
         return path
-
-
-__dir__ = getdir(
-    'Cache',
-    'attrs',
-    'deleted',
-    'find',
-    'fns',
-    'fntime',
-    'last',
-    'read',
-    'search',
-    'write'
-)

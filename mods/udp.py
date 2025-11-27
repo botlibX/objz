@@ -10,11 +10,9 @@ import time
 
 
 from objz.brokers import Broker
+from objz.configs import Config
 from objz.objects import Object
 from objz.threads import launch
-
-
-DEBUG = False
 
 
 def init():
@@ -77,7 +75,7 @@ class UDP(Object):
 
 
 def toudp(host, port, txt):
-    if DEBUG:
+    if Config.debug:
         return
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.sendto(bytes(txt.strip(), "utf-8"), (host, port))

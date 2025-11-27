@@ -6,7 +6,6 @@ import inspect
 
 from .brokers import display
 from .methods import parse
-from .utility import getdir
 
 
 class Commands:
@@ -41,6 +40,3 @@ def scan(module):
             continue
         if 'event' in inspect.signature(cmdz).parameters:
             Commands.add(cmdz)
-
-
-__dir__ = getdir('Comamnds', 'command', 'scan')

@@ -188,22 +188,3 @@ def wrapped(func):
         func()
     except (KeyboardInterrupt, EOFError):
         pass
-
-
-def __dir__():
-    return (
-        'check',
-        'daemon',
-        'elapsed',
-        'extract_date',
-        'forever',
-        'getmain',
-        'imprter',
-        'md5sum',
-        'pidfile',
-        'privileges',
-        'spl',
-        'where',
-        'wrap',
-        'wrapped'
-   )

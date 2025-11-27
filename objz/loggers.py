@@ -7,7 +7,6 @@ import time
 
 from .configs import Config 
 from .statics import LEVELS
-from .utility import getdir
 
 
 class Logging:
@@ -46,6 +45,3 @@ def level(loglevel="debug"):
     ch = logging.StreamHandler()
     ch.setFormatter(formatter)
     logger.addHandler(ch)
-
-
-__dir__ = getdir('Logging', 'banner', 'level')
