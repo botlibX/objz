@@ -26,7 +26,7 @@ def init():
         logging.error(str(ex))
 
 
-class Config:
+class Cfg:
 
     hostname = "localhost"
     port     = 10102
@@ -89,7 +89,7 @@ class RESTHandler(BaseHTTPRequestHandler):
             self.write_header("text/html")
             txt = ""
             for fnm in types():
-                txt += f'<a href="http://{Config.hostname}:{Config.port}/{fnm}">{fnm}</a><br>\n'
+                txt += f'<a href="http://{Cfg.hostname}:{Cfg.port}/{fnm}">{fnm}</a><br>\n'
             self.send(html(txt.strip()))
             return
         fnm = store() + self.path
@@ -99,7 +99,7 @@ class RESTHandler(BaseHTTPRequestHandler):
             txt = ""
             for fnn in os.listdir(fnm):
                 filename = self.path  + os.sep + fnn
-                txt += f'<a href="http://{Config.hostname}:{Config.port}/{filename}">{filename}</a><br>\n'
+                txt += f'<a href="http://{Cfg.hostname}:{Cfg.port}/{filename}">{filename}</a><br>\n'
             self.send(txt.strip())
             return
         try:
