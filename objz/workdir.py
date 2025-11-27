@@ -31,7 +31,7 @@ def ident(obj):
     return os.path.join(fqn(obj), *str(datetime.datetime.now()).split())
 
 
-def long(name) -> str:
+def long(name):
     split = name.split(".")[-1].lower()
     res = name
     for names in types():
