@@ -8,7 +8,7 @@ import sys
 import time
 
 
-from .statics import BASIC, TIMES
+from .statics import TIMES
 
 
 def cdir(path):
@@ -106,12 +106,6 @@ def forever():
             break
 
 
-def getdir(*args):
-    def ddir():
-         return tuple(list(BASIC) + list(args))
-    return ddir
-
-
 def getmain(name):
     main = sys.modules.get("__main__")
     return getattr(main, name, None)
@@ -188,3 +182,23 @@ def wrapped(func):
         func()
     except (KeyboardInterrupt, EOFError):
         pass
+
+
+def __dir__():
+    return (
+        'cdir',
+        'check',
+        'daemon',
+        'elapsed',
+        'extract_date',
+        'forever',
+        'getmain',
+        'importer',
+        'md5sum',
+        'pidfile',
+        'privileges',
+        'spl',
+        'where',
+        'wrap',
+        'wrapped'
+   )

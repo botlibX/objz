@@ -4,16 +4,6 @@
 import logging
 
 
-BASIC = (
-    '__doc__',
-    '__file__',
-    '__loader__',
-    '__name__',
-    '__package__',
-    '__spec__'
-)
-
-
 LEVELS = {
     'debug': logging.DEBUG,
     'info': logging.INFO,
@@ -62,3 +52,12 @@ TIMES = [
     "%d-%m",
     "%m-%d"
 ]
+
+
+def __dir__():
+    return (
+        'LEVELS',
+        'MONTH',
+        'SYSTEMD',
+        'TIMES'
+    )

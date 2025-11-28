@@ -40,3 +40,11 @@ def scan(module):
             continue
         if 'event' in inspect.signature(cmdz).parameters:
             Commands.add(cmdz)
+
+
+def __dir__():
+    return (
+        'Commands',
+        'command',
+        'scan'
+    )

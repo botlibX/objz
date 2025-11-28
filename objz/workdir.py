@@ -66,3 +66,18 @@ def store(fnm=""):
 def types():
     skel()
     return os.listdir(store())
+
+
+def __dir__():
+    return (
+        'Workdir',
+        'getid',
+        'getpath',
+        'ident',
+        'long',
+        'moddir',
+        'pidname',
+        'skel',
+        'store',
+        'types'
+    )

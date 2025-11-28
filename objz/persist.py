@@ -143,7 +143,6 @@ def __dir__():
     return (
         'Cache',
         'attrs',
-        'cdir',
         'deleted',
         'find',
         'fns',

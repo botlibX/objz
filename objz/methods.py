@@ -121,3 +121,12 @@ def parse(obj, text):
         obj.text  = obj.cmd + " " + obj.rest
     else:
         obj.text = obj.cmd or ""
+
+
+def __dir__():
+    return (
+        'edit',
+        'fmt',
+        'name',
+        'parse'
+    )

@@ -26,3 +26,9 @@ class Message(Default):
         self._ready.wait(timeout)
         if self._thr:
             self._thr.join(timeout)
+
+
+def __dir__():
+    retrun (
+        'Message',
+    )

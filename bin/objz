@@ -16,7 +16,6 @@ from objz.command import Commands, command
 from objz.clients import Client
 from objz.configs import Config
 from objz.kernels import Kernel, scanner
-from objz.loggers import banner
 from objz.message import Message
 from objz.package import modules
 from objz.statics import SYSTEMD
@@ -41,20 +40,6 @@ class CLI(Client):
         print(text.encode('utf-8', 'replace').decode("utf-8"))
 
 
-def cmd(event):
-    event.reply(",".join(sorted(Commands.names or Commands.cmds)))
-
-
-def srv(event):
-    import getpass
-    name = getpass.getuser()
-    event.reply(SYSTEMD % (Config.name.upper(), name, name, name, Config.name))
-
-
-def ver(event):
-    event.reply(f"{Config.name.upper()} {Config.version}")
-
-
 class Console(CLI):
 
     def callback(self, event):
@@ -68,6 +53,24 @@ class Console(CLI):
         evt.text = input("> ")
         evt.kind = "command"
         return evt
+
+
+"in the beginning"
+
+
+def banner():
+    tme = time.ctime(time.time()).replace("  ", " ")
+    logger = logging.getLogger()
+    print("%s %s since %s (%s)" % (
+                                   Config.name.upper(),
+                                   Config.version,
+                                   tme,
+                                   logging.getLevelName(logger.getEffectiveLevel())
+                                  ))
+    sys.stdout.flush()
+
+
+"scripts"
 
 
 def background():
@@ -118,6 +121,26 @@ def service():
     Commands.add(cmd, ver)
     pidfile(pidname(Config.name))
     forever()
+
+
+"commands"
+
+
+def cmd(event):
+    event.reply(",".join(sorted(Commands.names or Commands.cmds)))
+
+
+def srv(event):
+    import getpass
+    name = getpass.getuser()
+    event.reply(SYSTEMD % (Config.name.upper(), name, name, name, Config.name))
+
+
+def ver(event):
+    event.reply(f"{Config.name.upper()} {Config.version}")
+
+
+"runtime"
 
 
 def main():

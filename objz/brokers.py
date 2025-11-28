@@ -31,3 +31,10 @@ def display(evt):
     bot = Broker.get(evt.orig)
     if bot:
         bot.display(evt)
+
+
+def __dir__():
+    return (
+        'Broker',
+        'display'
+    )

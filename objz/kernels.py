@@ -36,3 +36,10 @@ def scanner(names, init=False):
             thr = launch(mod.init)
             mods.append((mod, thr))
     return mods
+
+
+def __dir__():
+    return (
+        'Kernel',
+        'scanner'
+    )

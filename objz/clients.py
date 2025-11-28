@@ -68,3 +68,10 @@ class Output(Client):
     def stop(self):
         self.oqueue.put(None)
         super().stop()
+
+
+def __dir__():
+    return (
+        'Client',
+        'Output'
+    )

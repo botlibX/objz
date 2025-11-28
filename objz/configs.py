@@ -13,3 +13,9 @@ class Config(Default):
     name = ""
     network = False
     version = 0
+
+
+def __dir__():
+    return (
+        'Config',
+    )

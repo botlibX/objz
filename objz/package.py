@@ -59,3 +59,10 @@ def modules():
             if x.endswith(".py") and not x.startswith("__") and x not in spl(Mods.ignore)
         ])
     return sorted(mods)
+
+
+def __dir__():
+    return (
+        'Mods',
+        'modules'
+    )

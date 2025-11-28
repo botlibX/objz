@@ -22,17 +22,6 @@ class Format(logging.Formatter):
         return logging.Formatter.format(self, record)
 
 
-def banner():
-    tme = time.ctime(time.time()).replace("  ", " ")
-    logger = logging.getLogger()
-    logging.warn("%s %s since %s (%s)" % (
-                                   Config.name.upper(),
-                                   Config.version,
-                                   tme,
-                                   logging.getLevelName(logger.getEffectiveLevel())
-                                  ))
-
-
 def level(loglevel="debug"):
     lvl = LEVELS.get(loglevel)
     if not lvl:
@@ -45,3 +34,10 @@ def level(loglevel="debug"):
     ch = logging.StreamHandler()
     ch.setFormatter(formatter)
     logger.addHandler(ch)
+
+
+def __dir__():
+    return (
+        'Logging',
+        'level'
+    )

@@ -23,7 +23,6 @@ Workdir.wdr = '.test'
 ATTRS1 = (
     'Cache',
     'attrs',
-    'cdir',
     'deleted',
     'find',
     'fns', 

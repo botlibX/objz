@@ -39,3 +39,12 @@ def load(s, *args, **kw):
 
 def loads(s, *args, **kw):
     return json.loads(s, *args, **kw)
+
+
+def __dir__():
+   return (
+       'dump',
+       'dumps',
+       'load',
+       'loads'
+   )

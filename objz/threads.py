@@ -68,3 +68,12 @@ def threadhook(args):
     if _thr and _thr.event and "ready" in dir(_thr.event):
         _thr.event.ready()
     _thread.interrupt_main()
+
+
+def __dir__():
+    return (
+        'Thread',
+        'launch',
+        'threadhook'
+    )
+    

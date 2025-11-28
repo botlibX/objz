@@ -43,3 +43,9 @@ class Handler:
 
     def stop(self):
         self.queue.put(None)
+
+
+def __dir__():
+    return (
+        'Handler',
+    )
