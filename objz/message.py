@@ -29,6 +29,6 @@ class Message(Default):
 
 
 def __dir__():
-    retrun (
+    return (
         'Message',
     )
